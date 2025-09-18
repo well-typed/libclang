@@ -1,5 +1,8 @@
-import: ./cabal.project.ci.base
-
-tests: true
-
 packages: libclang.cabal
+
+tests: True
+benchmarks: True
+
+package libclang
+  ghc-options: -Werror
+  flags: +dev
