@@ -23,6 +23,7 @@ on:
   merge_group:
     branches:
       - main
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -187,27 +188,28 @@ jobs:
           find sdist -maxdepth 1 -type f -name '*.tar.gz' -exec tar -C $GITHUB_WORKSPACE/unpacked -xzvf {} \;
       - name: generate cabal.project
         run: |
-          PKGDIR_libclang="$(find "$GITHUB_WORKSPACE/unpacked" -maxdepth 1 -type d -regex '.*/libclang-[0-9.]*')"
-          echo "PKGDIR_libclang=${PKGDIR_libclang}" >> "$GITHUB_ENV"
+          PKGDIR_libclang_bindings="$(find "$GITHUB_WORKSPACE/unpacked" -maxdepth 1 -type d -regex '.*/libclang-bindings-[0-9.]*')"
+          echo "PKGDIR_libclang_bindings=${PKGDIR_libclang_bindings}" >> "$GITHUB_ENV"
           rm -f cabal.project cabal.project.local
           touch cabal.project
           touch cabal.project.local
-          echo "packages: ${PKGDIR_libclang}" >> cabal.project
-          echo "package libclang" >> cabal.project
+          echo "packages: ${PKGDIR_libclang_bindings}" >> cabal.project
+          echo "package libclang-bindings" >> cabal.project
           echo "    ghc-options: -Werror=missing-methods -Werror=missing-fields" >> cabal.project
-          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then echo "package libclang" >> cabal.project ; fi
+          if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then echo "package libclang-bindings" >> cabal.project ; fi
           if [ $((HCNUMVER >= 90400)) -ne 0 ] ; then echo "    ghc-options: -Werror=unused-packages" >> cabal.project ; fi
-          echo "package libclang" >> cabal.project
+          echo "package libclang-bindings" >> cabal.project
           echo "    ghc-options: -Werror=incomplete-patterns -Werror=incomplete-uni-patterns" >> cabal.project
           cat >> cabal.project <<EOF
-          tests:      True
-          benchmarks: True
+          index-state: 2025-09-18T00:00:00Z
+          tests:       True
+          benchmarks:  True
 
-          package libclang
+          package libclang-bindings
             ghc-options: -Werror
             flags:       +dev
           EOF
-          $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: any.$_ installed\n" unless /^(libclang)$/; }' >> cabal.project.local
+          $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: any.$_ installed\n" unless /^(libclang-bindings)$/; }' >> cabal.project.local
           cat cabal.project
           cat cabal.project.local
       - name: dump install plan
@@ -239,7 +241,7 @@ jobs:
           cabal-docspec $ARG_COMPILER
       - name: cabal check
         run: |
-          cd ${PKGDIR_libclang} || false
+          cd ${PKGDIR_libclang_bindings} || false
           ${CABAL} -vnormal check
       - name: haddock
         run: |
