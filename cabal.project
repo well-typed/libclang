@@ -1,19 +1,7 @@
-packages: ansi-diff
-packages: c-expr-runtime
 packages: clang
-packages: hs-bindgen
-packages: hs-bindgen-runtime
-packages: hs-bindgen-test-runtime
 
 tests: True
 benchmarks: True
 
 package clang
   flags: +dev
-
-package hs-bindgen
-  flags: +dev
-
-package hs-bindgen-runtime
-
-package hs-bindgen-test-runtime

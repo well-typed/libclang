@@ -1,18 +1,36 @@
+# https://github.com/github/gitignore/blob/main/Haskell.gitignore
+dist
+dist-*
+cabal-dev
+*.o
+*.hi
+*.hie
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
+
+# Custom
 /.direnv/
 
 .dir-locals.el
 .envrc
 .vscode/
 
-cabal.project.local
-dist-newstyle/
 unversioned
-
-# manual generated files
-manual/hs/manual/generated/**/*.hs
-manual/hs/hs-game/generated/**/*.hs
-manual/hs/hs-vector/generated/**/*.hs
 
 *.dll
 *.log
-
