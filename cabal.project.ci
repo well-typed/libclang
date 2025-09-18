@@ -1,3 +1,5 @@
+index-state: 2025-09-18T00:00:00Z
+
 packages: libclang.cabal
 
 tests: True
