@@ -17,7 +17,7 @@ import Text.Parsec.ByteString (Parser)
 
 main :: IO ()
 main = do
-    bs <- BS.readFile "clang/bootstrap/imports.h"
+    bs <- BS.readFile "bootstrap/imports.h"
     decls <- case P.parse (whitespace *> many declP <* P.eof) "imports.h" bs of
         Left err    -> print err >> fail "parse error"
         Right decls -> return decls
@@ -26,12 +26,12 @@ main = do
     do
         let contents = ffiModule decls
         putStr contents
-        writeFile "clang/src/Clang/LowLevel/FFI.hs" contents
+        writeFile "src/Clang/LowLevel/FFI.hs" contents
 
     do
         let contents = wrappers decls
         putStr contents
-        writeFile "clang/cbits/clang_wrappers_ffi.h" contents
+        writeFile "cbits/clang_wrappers_ffi.h" contents
 
 -------------------------------------------------------------------------------
 -- declarations

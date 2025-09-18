@@ -1,4 +1,4 @@
-packages: libclang
+packages: libclang.cabal
 
 tests: True
 benchmarks: True

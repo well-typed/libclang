@@ -2,4 +2,4 @@ import: ./cabal.project.ci.base
 
 tests: true
 
-packages: libclang
+packages: libclang.cabal

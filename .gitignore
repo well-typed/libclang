@@ -34,3 +34,8 @@ unversioned
 
 *.dll
 *.log
+
+autom4te.cache/
+config.log
+config.status
+hs-bindgen-libclang.buildinfo
