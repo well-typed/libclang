@@ -1,7 +1,7 @@
-packages: libclang.cabal
+packages: libclang-bindings.cabal
 
 tests: True
 benchmarks: True
 
-package libclang
+package libclang-bindings
   flags: +dev

@@ -1,5 +1,5 @@
 cabal-version:      3.0
-name:               libclang
+name:               libclang-bindings
 version:            0.1.0
 license:            BSD-3-Clause
 license-file:       LICENSE
@@ -137,7 +137,7 @@ test-suite clang-tutorial
 
   build-depends:
       -- Internal dependencies
-    , libclang
+    , libclang-bindings
   build-depends:
       -- Inherited dependencies
     , data-default
@@ -168,7 +168,7 @@ test-suite test-clang-bindings
 
   build-depends:
       -- Internal dependencies
-    , libclang
+    , libclang-bindings
   build-depends:
       -- Inherited dependencies
     , data-default

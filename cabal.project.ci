@@ -1,10 +1,10 @@
 index-state: 2025-09-18T00:00:00Z
 
-packages: libclang.cabal
+packages: libclang-bindings.cabal
 
 tests: True
 benchmarks: True
 
-package libclang
+package libclang-bindings
   ghc-options: -Werror
   flags: +dev
