@@ -1,7 +1,7 @@
-packages: clang
+packages: libclang
 
 tests: True
 benchmarks: True
 
-package clang
+package libclang
   flags: +dev
