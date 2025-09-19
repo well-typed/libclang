@@ -8,7 +8,6 @@ module Clang.HighLevel.Fold (
     -- * Construction
   , simpleFold
   , foldWithHandler
-  , runFold
     -- * Fold-specific operations
   , foldBreak
   , foldBreakWith
@@ -176,23 +175,6 @@ foldWithHandler handler foldNext =
         case fromException e of
           Just e' -> handler curr e'
           Nothing -> liftIO $ throwIO e
-
--- | Run 'Fold'
---
--- If the fold has an associated exception handler, it will get a chance to
--- catch any exceptions thrown. See 'foldWithHandler' for detailed discussion.
-runFold :: MonadUnliftIO m => Fold m a -> CXCursor -> m (Next m a)
-runFold fold curr = withRunInIO $ \runInIO -> runFoldUsing runInIO fold curr
-
--- | Internal generalization of 'runFold'
-runFoldUsing ::
-     ( MonadIO n
-     , Functor m
-     )
-  => RunInIO m -> Fold m a -> CXCursor -> n (Next m a)
-runFoldUsing runInIO Fold{foldNext, foldHandler} curr =
-    handleUnliftUsing runInIO (fmap Continue . foldHandler curr) $
-      foldNext curr
 
 -- | Result of visiting one node
 --
@@ -487,25 +469,34 @@ clang_visitChildren root topLevelFold = withRunInIO $ \runInIO -> do
       -> IO (SimpleEnum CXChildVisitResult)
     visitor runInIO someStack current parent = do
         popUntil runInIO someStack parent
-        SomeStack stack <- readIORef someStack
-        let p = topProcessing stack
-        previousException <- partialResultsIsException (partialResults p)
+        SomeStack (stack :: Stack m x) <- readIORef someStack
 
+        let foldHandler    :: CXCursor -> SomeException -> m (Maybe x)
+            foldNext       :: CXCursor -> m (Next m x)
+            partialResults :: PartialResults x
+            Processing{
+                currentFold = Fold{foldHandler, foldNext}
+              , partialResults
+              } = topProcessing stack
+
+        previousException <- partialResultsIsException partialResults
         if previousException then
           return $ simpleEnum CXChildVisit_Continue
         else do
-          next <- Base.try $ runFoldUsing runInIO (currentFold p) current
+          next <- Base.try $
+            handleUnliftUsing runInIO (fmap Continue . foldHandler current) $
+              foldNext current
           case next of
             Right (Break ma) -> do
-              forM_ ma $ addPartialResult (partialResults p)
+              forM_ ma $ addPartialResult partialResults
               return $ simpleEnum CXChildVisit_Break
             Right (Continue ma) -> do
-              forM_ ma $ addPartialResult (partialResults p)
+              forM_ ma $ addPartialResult partialResults
               return $ simpleEnum CXChildVisit_Continue
             Right (Recurse fold summarize) -> do
               stack' <- push current fold summarize stack
               writeIORef someStack $ SomeStack stack'
               return $ simpleEnum CXChildVisit_Recurse
             Left ex -> do
-              recordException (partialResults p) ex
+              recordException partialResults ex
               return $ simpleEnum CXChildVisit_Continue
