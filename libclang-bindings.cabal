@@ -115,6 +115,8 @@ library
 
   build-tool-depends:
       hsc2hs:hsc2hs
+  extra-libraries:
+      clang
 
 executable clang-bootstrap
   import:         lang
