@@ -895,3 +895,20 @@ instance IsSimpleEnum CXVisibilityKind where
   simpleFromC (#const CXVisibility_Default)   = Just CXVisibility_Default
 
   simpleFromC _otherwise = Nothing
+
+{-------------------------------------------------------------------------------
+  CXAvailabilityKind
+-------------------------------------------------------------------------------}
+
+instance IsSimpleEnum CXAvailabilityKind where
+  simpleToC CXAvailability_Available     = #const CXAvailability_Available
+  simpleToC CXAvailability_Deprecated    = #const CXAvailability_Deprecated
+  simpleToC CXAvailability_NotAvailable  = #const CXAvailability_NotAvailable
+  simpleToC CXAvailability_NotAccessible = #const CXAvailability_NotAccessible
+
+  simpleFromC (#const CXAvailability_Available)     = Just CXAvailability_Available
+  simpleFromC (#const CXAvailability_Deprecated)    = Just CXAvailability_Deprecated
+  simpleFromC (#const CXAvailability_NotAvailable)  = Just CXAvailability_NotAvailable
+  simpleFromC (#const CXAvailability_NotAccessible) = Just CXAvailability_NotAccessible
+
+  simpleFromC _otherwise = Nothing

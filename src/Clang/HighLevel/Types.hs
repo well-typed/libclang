@@ -44,6 +44,7 @@ module Clang.HighLevel.Types (
   , CursorSpelling(..)
     -- * Declaration classification
   , DeclarationClassification(..)
+  , Availability(..)
   ) where
 
 import Clang.HighLevel.Declaration

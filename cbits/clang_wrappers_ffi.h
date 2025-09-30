@@ -283,7 +283,9 @@ static inline enum CXVisibilityKind wrap_getCursorVisibility(const CXCursor* cur
   return clang_getCursorVisibility(*cursor);
 }
 
-/* enum CXAvailabilityKind clang_getCursorAvailability (CXCursor cursor); // no enum */
+static inline enum CXAvailabilityKind wrap_getCursorAvailability(const CXCursor* cursor) {
+  return clang_getCursorAvailability(*cursor);
+}
 
 /* int clang_getCursorPlatformAvailability (CXCursor cursor, int *always_deprecated, CXString *deprecated_message, int *always_unavailable, CXString *unavailable_message, CXPlatformAvailability *availability, int availability_size); */
 

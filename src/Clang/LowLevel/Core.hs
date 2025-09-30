@@ -93,6 +93,7 @@ module Clang.LowLevel.Core (
   , CXTLSKind(..)
   , CXLinkageKind(..)
   , CXVisibilityKind(..)
+  , CXAvailabilityKind(..)
   , clang_getTranslationUnitCursor
   , clang_equalCursors
   , clang_getCursorSemanticParent
@@ -106,6 +107,7 @@ module Clang.LowLevel.Core (
   , clang_isDeclaration
   , clang_getCursorLinkage
   , clang_getCursorVisibility
+  , clang_getCursorAvailability
   , clang_getIncludedFile
   , clang_Cursor_getVarDeclInitializer
     -- * Traversing the AST with cursors
@@ -979,6 +981,15 @@ clang_getCursorVisibility :: MonadIO m => CXCursor -> m (SimpleEnum CXVisibility
 clang_getCursorVisibility cursor = liftIO $
     onHaskellHeap cursor $ \cursor' ->
       wrap_getCursorVisibility cursor'
+
+-- | Determine the availability of the entity that this cursor refers to, taking
+-- the current target platform into account.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__MANIP.html#gab44e2a565fa40a0e0fc0f130f618a9b5>
+clang_getCursorAvailability :: MonadIO m => CXCursor -> m (SimpleEnum CXAvailabilityKind)
+clang_getCursorAvailability cursor = liftIO $
+    onHaskellHeap cursor $ \cursor' ->
+      wrap_getCursorAvailability cursor'
 
 -- | Retrieve the file that is included by the given inclusion directive cursor.
 --
