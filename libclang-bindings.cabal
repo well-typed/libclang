@@ -97,7 +97,7 @@ library
       Clang.HighLevel.Wrappers
   build-depends:
       -- External dependencies
-    , data-default  >= 0.8   && < 0.9
+    , data-default  >= 0.7   && < 0.9
     , exceptions    >= 0.10  && < 0.11
     , mtl           >= 2.2   && < 2.4
     , text          >= 1.2   && < 2.2
@@ -115,6 +115,8 @@ library
 
   build-tool-depends:
       hsc2hs:hsc2hs
+  extra-libraries:
+      clang
 
 executable clang-bootstrap
   import:         lang
@@ -177,7 +179,7 @@ test-suite test-clang-bindings
   build-depends:
       -- New dependencies
     , containers       >= 0.6  && < 0.8
-    , QuickCheck       >= 2.15 && < 2.17
+    , QuickCheck       >= 2.14 && < 2.17
     , tasty            >= 1.5  && < 1.6
     , tasty-hunit      >= 0.10 && < 0.11
     , tasty-quickcheck >= 0.11 && < 0.12
