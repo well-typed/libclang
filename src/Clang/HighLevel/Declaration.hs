@@ -4,12 +4,17 @@ module Clang.HighLevel.Declaration (
   , classifyDeclaration
     -- * Other
   , classifyTentativeDefinition
+    -- * Availability
+  , Availability(..)
+  , clang_getCursorAvailability
   ) where
 
 import Control.Monad.IO.Class
+import GHC.Generics (Generic)
 
 import Clang.Enum.Simple
-import Clang.LowLevel.Core
+import Clang.LowLevel.Core (CXCursor, CX_StorageClass(..), CXAvailabilityKind(..))
+import Clang.LowLevel.Core qualified as LowLevel
 
 {-------------------------------------------------------------------------------
   Declaration
@@ -60,12 +65,12 @@ classifyDeclaration ::
   => CXCursor  -- ^ Declaration
   -> m DeclarationClassification
 classifyDeclaration cursor = do
-    defnCursor <- clang_getCursorDefinition cursor
-    isDefnNull <- clang_equalCursors defnCursor nullCursor
+    defnCursor <- LowLevel.clang_getCursorDefinition cursor
+    isDefnNull <- LowLevel.clang_equalCursors defnCursor LowLevel.nullCursor
     if isDefnNull
       then return DefinitionUnavailable
       else do
-        isCursorDefn <- clang_equalCursors cursor defnCursor
+        isCursorDefn <- LowLevel.clang_equalCursors cursor defnCursor
         return $
           if isCursorDefn
             then Definition
@@ -95,13 +100,52 @@ classifyTentativeDefinition ::
   => CXCursor
   -> m Bool
 classifyTentativeDefinition cursor = do
-    initrCursor <- clang_Cursor_getVarDeclInitializer cursor
-    isInitrNull <- clang_equalCursors initrCursor nullCursor
+    initrCursor <- LowLevel.clang_Cursor_getVarDeclInitializer cursor
+    isInitrNull <- LowLevel.clang_equalCursors initrCursor LowLevel.nullCursor
     if isInitrNull
       then do
-        storage <- clang_Cursor_getStorageClass cursor
+        storage <- LowLevel.clang_Cursor_getStorageClass cursor
         case fromSimpleEnum storage of
           Right CX_SC_Static -> pure True
           Right CX_SC_None -> pure True
           _ -> pure False
       else pure False
+
+{-------------------------------------------------------------------------------
+  Availability
+-------------------------------------------------------------------------------}
+
+-- | Describes the availability of a particular entity, which indicates whether
+-- the use of this entity will result in a warning or error due to it being
+-- deprecated or unavailable.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX.html#gada331ea0195e952c8f181ecf15e83d71>
+data Availability =
+     -- | The entity is available.
+    Available
+     -- | The entity is available, but has been deprecated (and its use is not
+     -- recommended).
+  | Deprecated
+     -- | The entity is not available; any use of it will be an error.
+  | NotAvailable
+     -- | The entity is available, but not accessible; any use of it will be an
+     -- error.
+  | NotAccessible
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
+
+-- | Determine the availability of the entity that this cursor refers to, taking
+-- the current target platform into account.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__MANIP.html#gab44e2a565fa40a0e0fc0f130f618a9b5>
+clang_getCursorAvailability :: (MonadIO m) => CXCursor -> m Availability
+clang_getCursorAvailability cursor = do
+    kind <- LowLevel.clang_getCursorAvailability cursor
+    case fromSimpleEnum kind of
+      Right k -> pure $ toAvailability k
+      Left  _ -> error $ "unexpected cursor kind: " ++ show kind
+  where
+    toAvailability = \case
+      CXAvailability_Available     -> Available
+      CXAvailability_Deprecated    -> Deprecated
+      CXAvailability_NotAvailable  -> NotAvailable
+      CXAvailability_NotAccessible -> NotAccessible

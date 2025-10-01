@@ -15,6 +15,7 @@ module Clang.LowLevel.Core.Enums (
   , CXLinkageKind(..)
   , CXTLSKind(..)
   , CXVisibilityKind(..)
+  , CXAvailabilityKind(..)
   ) where
 
 import GHC.Generics (Generic)
@@ -1349,4 +1350,26 @@ data CXVisibilityKind =
   | CXVisibility_Protected
     -- | Symbol seen by the linker and acts like a normal symbol.
   | CXVisibility_Default
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
+
+{-------------------------------------------------------------------------------
+  CXAvailabilityKind
+-------------------------------------------------------------------------------}
+
+-- | Describes the availability of a particular entity, which indicates whether
+-- the use of this entity will result in a warning or error due to it being
+-- deprecated or unavailable.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX.html#gada331ea0195e952c8f181ecf15e83d71>
+data CXAvailabilityKind =
+     -- | The entity is available.
+    CXAvailability_Available
+     -- | The entity is available, but has been deprecated (and its use is not
+     -- recommended).
+  | CXAvailability_Deprecated
+     -- | The entity is not available; any use of it will be an error.
+  | CXAvailability_NotAvailable
+     -- | The entity is available, but not accessible; any use of it will be an
+     -- error.
+  | CXAvailability_NotAccessible
   deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
