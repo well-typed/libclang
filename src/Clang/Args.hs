@@ -51,9 +51,6 @@ newtype InvalidClangArgs = InvalidClangArgs String
 --   <https://clang.llvm.org/c_status.html>
 -- * "Differences between various standard modes" in the clang user manual
 --   <https://clang.llvm.org/docs/UsersManual.html#differences-between-various-standard-modes>
---
--- We don't currently support @C2y@ because it requires @clang-19@ or later, and
--- we have no reliable way to test for that (see 'ClangVersion').
 data CStandard =
     C89
   | C99
