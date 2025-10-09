@@ -78,16 +78,26 @@ plausible version@(major, _minor, _patch) = or [
       version `elem` historicReleases
 
       -- For the current version we don't know which minor/patch to expect
-    , major == 20
+    , major == 21
     ]
 
 -- | Historic @llvm@ releases
 --
--- See <https://releases.llvm.org/>, or
+-- See <https://releases.llvm.org/> (outdated), or
 -- https://github.com/llvm/llvm-project/releases/.
 historicReleases :: [(Int, Int, Int)]
 historicReleases = [
-      ( 19, 1, 7) -- 14 Jan 2025
+      ( 21, 1, 0) -- 26 Aug 2025
+    , ( 20, 1, 8) -- 08 Jul 2025
+    , ( 20, 1, 7) -- 13 Jun 2025
+    , ( 20, 1, 6) -- 28 May 2025
+    , ( 20, 1, 5) -- 14 May 2025
+    , ( 20, 1, 4) -- 30 Apr 2025
+    , ( 20, 1, 3) -- 16 Apr 2025
+    , ( 20, 1, 2) -- 02 Apr 2025
+    , ( 20, 1, 1) -- 19 Mar 2025
+    , ( 20, 1, 0) -- 04 Mar 2025
+    , ( 19, 1, 7) -- 14 Jan 2025
     , ( 19, 1, 1) -- 01 Oct 2024
     , ( 19, 1, 0) -- 17 Sep 2024
     , ( 18, 1, 8) -- 20 Jun 2024
