@@ -76,13 +76,16 @@ clang_getCursorSpelling cursor =
             --
             -- where @__builtin_va_list@ is a \"predefined typedef\".
             -- See <https://clang.llvm.org/docs/LanguageExtensions.html#variadic-function-builtins>.
-          | isNullPtr (fileOf expansion) ->
+          | isNullPtr (fileOf expansion) -> do
               return $ ClangBuiltin nameSpelling
 
             -- If the expansion location and the spelling location /of the name/
             -- are different, this means that the name is constructed using a
             -- macro. This must therefore have been done by the user.
-          | locationOf expansion /= locationOf spelling ->
+            --
+            -- NOTE: It's critical that we compare the file here too, in order
+            -- for the line/column (and offset) information to be meaningful.
+          | expansion /= spelling -> do
               return $ UserProvided nameSpelling
 
             -- Otherwise, check the token at the expansion location. If it
@@ -96,6 +99,3 @@ clang_getCursorSpelling cursor =
 
     fileOf :: (CXFile, CUInt, CUInt, CUInt) -> CXFile
     fileOf (file, _col, _line, _offset) = file
-
-    locationOf :: (CXFile, CUInt, CUInt, CUInt) -> (CUInt, CUInt)
-    locationOf (_file, col, line, _offset) = (col, line)
