@@ -82,7 +82,6 @@ library
     Clang.HighLevel.Fold
     Clang.HighLevel.SourceLoc
     Clang.HighLevel.Tokens
-    Clang.HighLevel.UserProvided
     Clang.HighLevel.Wrappers
     Clang.Internal.CXString
     Clang.Internal.FFI
@@ -101,7 +100,6 @@ library
   build-depends:
     , data-default   >=0.7   && <0.9
     , exceptions     >=0.10  && <0.11
-    , mtl            >=2.2   && <2.4
     , text           >=1.2   && <2.2
     , unliftio-core  >=0.2.1 && <0.3
 

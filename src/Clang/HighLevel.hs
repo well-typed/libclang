@@ -41,8 +41,6 @@ module Clang.HighLevel (
   , clang_getDiagnostics
     -- * Folds
   , clang_visitChildren
-    -- * User-provided names
-  , clang_getCursorSpelling
     -- * Declaration classification
   , classifyDeclaration
   , classifyTentativeDefinition
@@ -61,5 +59,4 @@ import Clang.HighLevel.Evaluate
 import Clang.HighLevel.Fold
 import Clang.HighLevel.SourceLoc
 import Clang.HighLevel.Tokens
-import Clang.HighLevel.UserProvided
 import Clang.HighLevel.Wrappers
