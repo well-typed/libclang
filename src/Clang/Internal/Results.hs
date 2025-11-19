@@ -14,7 +14,7 @@ module Clang.Internal.Results (
   , checkNotNull
   , ensureNotInRange
     -- * Auxiliary
-  , isNullPtr
+  , IsNullPtr(..)
   ) where
 
 import Control.Exception
@@ -76,12 +76,12 @@ ensureOn f p call = do
 
 -- | Ensure that a function did not return 'nullPtr' (indicating error)
 ensureNotNull ::
-     (HasCallStack, Coercible a (Ptr x), Show a)
+     (HasCallStack, IsNullPtr a, Show a)
   => IO a -> IO a
 ensureNotNull = ensure (not . isNullPtr)
 
 -- | If the result is 'nullPtr', return 'Nothing'
-checkNotNull :: Coercible a (Ptr x) => IO a -> IO (Maybe a)
+checkNotNull :: IsNullPtr a => IO a -> IO (Maybe a)
 checkNotNull call = do
     ptr <- call
     return $ if isNullPtr ptr
@@ -110,8 +110,11 @@ ensureNotInRange = ensureOn conv (not . simpleEnumInRange)
   Auxiliary
 -------------------------------------------------------------------------------}
 
-isNullPtr :: Coercible a (Ptr x) => a -> Bool
-isNullPtr ptr = ptr' == nullPtr
-  where
-    ptr' :: Ptr x
-    ptr' = coerce ptr
+class IsNullPtr a where
+  isNullPtr :: a -> Bool
+
+instance IsNullPtr (Ptr a) where
+  isNullPtr ptr = ptr' == nullPtr
+    where
+      ptr' :: Ptr x
+      ptr' = coerce ptr

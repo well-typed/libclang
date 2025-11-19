@@ -5,6 +5,8 @@ module Clang.LowLevel.Core.Pointers (
 
 import Foreign
 
+import Clang.Internal.Results
+
 {-------------------------------------------------------------------------------
   CXFile
 -------------------------------------------------------------------------------}
@@ -16,7 +18,7 @@ import Foreign
 -- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#gacfcea9c1239c916597e2e5b3e109215a>
 newtype CXFile = CXFile (Ptr ())
   deriving stock (Show, Eq)
-  deriving newtype (Storable)
+  deriving newtype (Storable, IsNullPtr)
 
 {-------------------------------------------------------------------------------
   CXPrintingPolicy
