@@ -40,8 +40,6 @@ module Clang.HighLevel.Types (
   , foldRecurseOpt
   , foldRecursePure
   , foldRecursePureOpt
-    -- * User-provided names
-  , CursorSpelling(..)
     -- * Declaration classification
   , DeclarationClassification(..)
   ) where
@@ -51,4 +49,3 @@ import Clang.HighLevel.Diagnostics
 import Clang.HighLevel.Fold
 import Clang.HighLevel.SourceLoc
 import Clang.HighLevel.Tokens
-import Clang.HighLevel.UserProvided
