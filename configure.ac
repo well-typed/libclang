@@ -74,12 +74,34 @@ CPPFLAGS="$CPPFLAGS -I$CLANG_INCLUDEDIR"
 AC_CHECK_HEADER([clang-c/Index.h],[],[AC_MSG_ERROR([Cannot find libclang headers])])
 AC_CHECK_LIB([clang], [clang_createIndex],[],[AC_MSG_ERROR([Cannot link against libclang])])
 
+AC_MSG_CHECKING([libclang version])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM(
+    [[
+      #include <clang-c/Index.h>
+      #include <stdio.h>
+    ]],
+    [[
+      CXString cxstring = clang_getClangVersion();
+      printf("%s\n", clang_getCString(cxstring));
+      clang_disposeString(cxstring);
+    ]]
+  )],
+  [LIBCLANG_BINDINGS_VERSION=$(./conftest$EXEEXT)],
+  [AC_MSG_FAILURE([Unable to determine libclang version])]
+)
+AC_MSG_RESULT($LIBCLANG_BINDINGS_VERSION)
+
 dnl Substitution
 
 AC_SUBST([CLANG_EXTRA_LIBS])
 AC_SUBST([CLANG_LIBDIR])
 AC_SUBST([CLANG_INCLUDEDIR])
+AC_SUBST(
+  [LIBCLANG_BINDINGS_VERSION],
+  ["$(echo ${LIBCLANG_BINDINGS_VERSION} | sed 's/\"/\\\"/g')"]
+)
 
-AC_CONFIG_FILES([clang.buildinfo])
+AC_CONFIG_FILES([clang.buildinfo autogen/Version_libclang_bindings.hs])
 
 AC_OUTPUT

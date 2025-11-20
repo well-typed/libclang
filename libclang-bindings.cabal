@@ -14,7 +14,8 @@ tested-with:      , GHC==9.2.8
                   , GHC==9.8.2
                   , GHC==9.10.2
                   , GHC==9.12.2
-extra-source-files: bootstrap/imports.h
+extra-source-files: autogen/Version_libclang_bindings.hs.in
+                    bootstrap/imports.h
                     cbits/*.c
                     cbits/*.h
                     clang.buildinfo.in
@@ -94,6 +95,9 @@ library
       Clang.HighLevel.SourceLoc
       Clang.HighLevel.Tokens
       Clang.HighLevel.Wrappers
+      Version_libclang_bindings
+  autogen-modules:
+      Version_libclang_bindings
   build-depends:
       -- External dependencies
     , data-default  >= 0.7   && < 0.9
