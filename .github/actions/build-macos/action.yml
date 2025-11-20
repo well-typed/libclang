@@ -1,0 +1,21 @@
+name: libclang (macOS)
+description: Build on macOS
+
+# If needed, we can SSH into the machine executing the job and
+# figure out what's going on:
+# - name: Setup tmate session
+#   uses: mxschmitt/action-tmate@v3
+
+runs:
+  using: composite
+  steps:
+    - name: Configure environment variables
+      shell: bash
+      run: |
+        export DYLD_LIBRARY_PATH=${{ github.workspace }}/manual/c/:$DYLD_LIBRARY_PATH
+        echo $DYLD_LIBRARY_PATH
+        echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
+
+    - name: Build the project
+      shell: bash
+      run: cabal build all

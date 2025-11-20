@@ -2,6 +2,7 @@ module Clang.Version (
     -- * Definition
     ClangVersion(..)
     -- * Current version
+  , Version_libclang_bindings.clangVersionCompileTime
   , clangVersion
     -- * Version requirements
   , Requires
@@ -23,6 +24,8 @@ import Clang.Internal.ByValue
 import Clang.Internal.CXString ()
 import Clang.Internal.Results
 import Clang.LowLevel.Core.Structs
+
+import Version_libclang_bindings qualified
 
 {-------------------------------------------------------------------------------
   Definition

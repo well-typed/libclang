@@ -646,6 +646,7 @@ ac_includes_default="\
 ac_header_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+LIBCLANG_BINDINGS_VERSION
 CLANG_INCLUDEDIR
 CLANG_LIBDIR
 CLANG_EXTRA_LIBS
@@ -3415,12 +3416,51 @@ else $as_nop
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking libclang version" >&5
+printf %s "checking libclang version... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+      #include <clang-c/Index.h>
+      #include <stdio.h>
+
+int
+main (void)
+{
+
+      CXString cxstring = clang_getClangVersion();
+      printf("%s\n", clang_getCString(cxstring));
+      clang_disposeString(cxstring);
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  LIBCLANG_BINDINGS_VERSION=$(./conftest$EXEEXT)
+else $as_nop
+  { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "Unable to determine libclang version
+See \`config.log' for more details" "$LINENO" 5; }
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LIBCLANG_BINDINGS_VERSION" >&5
+printf "%s\n" "$LIBCLANG_BINDINGS_VERSION" >&6; }
 
 
 
 
 
-ac_config_files="$ac_config_files clang.buildinfo"
+LIBCLANG_BINDINGS_VERSION="$(echo ${LIBCLANG_BINDINGS_VERSION} | sed 's/\"/\\\"/g')"
+
+
+
+ac_config_files="$ac_config_files clang.buildinfo autogen/Version_libclang_bindings.hs"
 
 
 cat >confcache <<\_ACEOF
@@ -4124,6 +4164,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "clang.buildinfo") CONFIG_FILES="$CONFIG_FILES clang.buildinfo" ;;
+    "autogen/Version_libclang_bindings.hs") CONFIG_FILES="$CONFIG_FILES autogen/Version_libclang_bindings.hs" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

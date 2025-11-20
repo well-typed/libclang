@@ -9,7 +9,7 @@ module Clang.HighLevel.Declaration (
 import Control.Monad.IO.Class
 
 import Clang.Enum.Simple
-import Clang.LowLevel.Core (CXCursor, CX_StorageClass(..))
+import Clang.LowLevel.Core (CXCursor, CX_StorageClass (..))
 import Clang.LowLevel.Core qualified as LowLevel
 
 {-------------------------------------------------------------------------------

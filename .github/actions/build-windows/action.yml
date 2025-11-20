@@ -1,0 +1,15 @@
+name: libclang (Windows)
+description: Build on Windows
+
+# If needed, we can SSH into the machine executing the job and
+# figure out what's going on:
+# - name: Setup tmate session
+#   uses: mxschmitt/action-tmate@v3
+
+runs:
+  using: composite
+  steps:
+    - name: Build
+      shell: bash
+      run: cabal build all
+
