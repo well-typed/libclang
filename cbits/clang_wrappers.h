@@ -267,6 +267,15 @@ static inline void wrap_disposeString(const CXString* string) {
  * Miscellaneous utility functions
  */
 
+static inline CXEvalResult wrap_Cursor_Evaluate(CXCursor* cursor) {
+    return clang_Cursor_Evaluate(*cursor);
+}
+
+static inline char* wrap_EvalResult_getAsStr(CXEvalResult E) {
+    // returning `const char*` confuses ghc
+    return (char*) clang_EvalResult_getAsStr(E);
+}
+
 static inline void wrap_getClangVersion(CXString* result) {
     *result = clang_getClangVersion();
 }

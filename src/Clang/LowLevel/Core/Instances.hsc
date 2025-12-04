@@ -912,3 +912,26 @@ instance IsSimpleEnum CXAvailabilityKind where
   simpleFromC (#const CXAvailability_NotAccessible) = Just CXAvailability_NotAccessible
 
   simpleFromC _otherwise = Nothing
+
+{-------------------------------------------------------------------------------
+  CXEvalResultKind
+-------------------------------------------------------------------------------}
+
+instance IsSimpleEnum CXEvalResultKind where
+  simpleToC CXEval_Int            = #const CXEval_Int
+  simpleToC CXEval_Float          = #const CXEval_Float
+  simpleToC CXEval_ObjCStrLiteral = #const CXEval_ObjCStrLiteral
+  simpleToC CXEval_StrLiteral     = #const CXEval_StrLiteral
+  simpleToC CXEval_CFStr          = #const CXEval_CFStr
+  simpleToC CXEval_Other          = #const CXEval_Other
+  simpleToC CXEval_UnExposed      = #const CXEval_UnExposed
+
+  simpleFromC (#const CXEval_Int)            = Just CXEval_Int
+  simpleFromC (#const CXEval_Float)          = Just CXEval_Float
+  simpleFromC (#const CXEval_ObjCStrLiteral) = Just CXEval_ObjCStrLiteral
+  simpleFromC (#const CXEval_StrLiteral)     = Just CXEval_StrLiteral
+  simpleFromC (#const CXEval_CFStr)          = Just CXEval_CFStr
+  simpleFromC (#const CXEval_Other)          = Just CXEval_Other
+  simpleFromC (#const CXEval_UnExposed)      = Just CXEval_UnExposed
+
+  simpleFromC _otherwise                     = Nothing

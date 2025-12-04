@@ -1,6 +1,7 @@
 module Clang.LowLevel.Core.Pointers (
     CXFile(..)
   , CXPrintingPolicy(..)
+  , CXEvalResult(..)
   ) where
 
 import Foreign
@@ -23,5 +24,16 @@ newtype CXFile = CXFile (Ptr ())
 -------------------------------------------------------------------------------}
 
 newtype CXPrintingPolicy = CXPrintingPolicy (Ptr ())
+  deriving stock (Show)
+  deriving newtype (Storable)
+
+{-------------------------------------------------------------------------------
+  CXEvalResult
+-------------------------------------------------------------------------------}
+
+-- | An opaque type representing an evaluation result
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gaa9270afc68877e1f3b20ce5b343191bc>
+newtype {-# CType "CXEvalResult" #-} CXEvalResult = CXEvalResult (Ptr ())
   deriving stock (Show)
   deriving newtype (Storable)

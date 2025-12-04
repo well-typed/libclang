@@ -78,6 +78,7 @@ library
   other-modules:
     Clang.HighLevel.Declaration
     Clang.HighLevel.Diagnostics
+    Clang.HighLevel.Evaluate
     Clang.HighLevel.Fold
     Clang.HighLevel.SourceLoc
     Clang.HighLevel.Tokens
