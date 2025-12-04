@@ -165,6 +165,17 @@ module Clang.LowLevel.Core (
   , clang_Type_getNamedType
   , clang_Type_getModifiedType
   , clang_Type_getValueType
+    -- * Evaluation API
+  , CXEvalResultKind(..)
+  , clang_Cursor_Evaluate
+  , clang_EvalResult_getKind
+  , clang_EvalResult_getAsInt
+  , clang_EvalResult_getAsLongLong
+  , clang_EvalResult_isUnsignedInt
+  , clang_EvalResult_getAsUnsigned
+  , clang_EvalResult_getAsDouble
+  , clang_EvalResult_getAsStr
+  , clang_EvalResult_dispose
     -- * Mapping between cursors and source code
   , CXSourceRange
   , clang_getCursorLocation
@@ -1669,6 +1680,105 @@ clang_Type_getValueType :: (MonadIO m, HasCallStack) => CXType -> m CXType
 clang_Type_getValueType typ = liftIO $ ensureValidType $
     onHaskellHeap typ $ \typ' ->
       preallocate_ $ wrap_Type_getValueType typ'
+
+{-------------------------------------------------------------------------------
+  Evaluation API
+-------------------------------------------------------------------------------}
+
+foreign import capi unsafe "clang_wrappers.h wrap_Cursor_Evaluate"
+  wrap_Cursor_Evaluate :: R CXCursor_ -> IO CXEvalResult
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getKind"
+  nowrapper_EvalResult_getKind ::
+       CXEvalResult
+    -> IO (SimpleEnum CXEvalResultKind)
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsInt"
+  nowrapper_EvalResult_getAsInt :: CXEvalResult -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsLongLong"
+  nowrapper_EvalResult_getAsLongLong :: CXEvalResult -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_isUnsignedInt"
+  nowrapper_EvalResult_isUnsignedInt :: CXEvalResult -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsUnsigned"
+  nowrapper_EvalResult_getAsUnsigned :: CXEvalResult -> IO CULLong
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsDouble"
+  nowrapper_EvalResult_getAsDouble :: CXEvalResult -> IO CDouble
+
+foreign import capi unsafe "clang_wrappers.h wrap_EvalResult_getAsStr"
+  wrap_EvalResult_getAsStr :: CXEvalResult -> IO CString
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_dispose"
+  nowrapper_EvalResult_dispose :: CXEvalResult -> IO ()
+
+-- | If cursor is a statement declaration tries to evaluate the statement and if
+-- its variable, tries to evaluate its initializer, into its corresponding type.
+--
+-- If it's an expression, tries to evaluate the expression.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga6be809ca82538f4a610d9a5b18a10ccb>
+clang_Cursor_Evaluate :: MonadIO m => CXCursor -> m CXEvalResult
+clang_Cursor_Evaluate cursor =
+    liftIO $ onHaskellHeap cursor wrap_Cursor_Evaluate
+
+-- | Returns the kind of the evaluated result.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gaea912a0620a9c16c1e46fdedf4825955>
+clang_EvalResult_getKind ::
+     MonadIO m
+  => CXEvalResult
+  -> m (SimpleEnum CXEvalResultKind)
+clang_EvalResult_getKind = liftIO . nowrapper_EvalResult_getKind
+
+-- | Returns the evaluation result as integer if the kind is @Int@.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga8abe0404897d93813d98bd07a198caa1>
+clang_EvalResult_getAsInt :: MonadIO m => CXEvalResult -> m CInt
+clang_EvalResult_getAsInt = liftIO . nowrapper_EvalResult_getAsInt
+
+-- | Returns the evaluation result as a @long long integer@ if the kind is
+-- @Int@.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga488b6b6a445be15e80ffe4816b2086c8>
+clang_EvalResult_getAsLongLong :: MonadIO m => CXEvalResult -> m CLLong
+clang_EvalResult_getAsLongLong = liftIO . nowrapper_EvalResult_getAsLongLong
+
+-- | Returns a non-zero value if the kind is @Int@ and the evaluation result
+-- resulted in an unsigned integer.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gad72ab38051388e5ed607ce5ce890b2ac>
+clang_EvalResult_isUnsignedInt :: MonadIO m => CXEvalResult -> m Bool
+clang_EvalResult_isUnsignedInt =
+    liftIO . fmap cToBool . nowrapper_EvalResult_isUnsignedInt
+
+-- | Returns the evaluation result as an unsigned integer if the kind is @Int@
+-- and @clang_EvalResult_isUnsignedInt@ is non-zero.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga448569d83b25514da4a15e6623d4bf4e>
+clang_EvalResult_getAsUnsigned :: MonadIO m => CXEvalResult -> m CULLong
+clang_EvalResult_getAsUnsigned = liftIO . nowrapper_EvalResult_getAsUnsigned
+
+-- | Returns the evaluation result as @double@ if the kind is @double@.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga6d140616208f61e24e18abf806aa68a7>
+clang_EvalResult_getAsDouble :: MonadIO m => CXEvalResult -> m CDouble
+clang_EvalResult_getAsDouble = liftIO . nowrapper_EvalResult_getAsDouble
+
+-- | Returns the evaluation result as a constant string if the kind is other
+-- than @Int@ or @float@.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gae387ea1b7a8c2d54a324161a856b77dd>
+clang_EvalResult_getAsStr :: MonadIO m => CXEvalResult -> m String
+clang_EvalResult_getAsStr = liftIO . (peekCString <=< wrap_EvalResult_getAsStr)
+
+-- | Disposes the created @Eval@ memory.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gaee104dfbff3ee6799ddebb417e968d8a>
+clang_EvalResult_dispose :: MonadIO m => CXEvalResult -> m ()
+clang_EvalResult_dispose = liftIO . nowrapper_EvalResult_dispose
 
 {-------------------------------------------------------------------------------
   Mapping between cursors and source code

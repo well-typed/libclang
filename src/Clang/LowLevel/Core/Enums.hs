@@ -16,6 +16,7 @@ module Clang.LowLevel.Core.Enums (
   , CXTLSKind(..)
   , CXVisibilityKind(..)
   , CXAvailabilityKind(..)
+  , CXEvalResultKind(..)
   ) where
 
 import GHC.Generics (Generic)
@@ -1372,4 +1373,21 @@ data CXAvailabilityKind =
      -- | The entity is available, but not accessible; any use of it will be an
      -- error.
   | CXAvailability_NotAccessible
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
+
+{-------------------------------------------------------------------------------
+  CXEvalResultKind
+-------------------------------------------------------------------------------}
+
+-- | Evaluation result kind
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#ga71ffcbb614704d05b059e7edce9465fe>
+data CXEvalResultKind =
+    CXEval_Int
+  | CXEval_Float
+  | CXEval_ObjCStrLiteral
+  | CXEval_StrLiteral
+  | CXEval_CFStr
+  | CXEval_Other
+  | CXEval_UnExposed
   deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)

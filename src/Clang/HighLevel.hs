@@ -51,10 +51,13 @@ module Clang.HighLevel (
   , withTranslationUnit
   , withTranslationUnit2
   , withUnsavedFile
+    -- * Evaluation
+  , clang_evaluate
   ) where
 
 import Clang.HighLevel.Declaration
 import Clang.HighLevel.Diagnostics
+import Clang.HighLevel.Evaluate
 import Clang.HighLevel.Fold
 import Clang.HighLevel.SourceLoc
 import Clang.HighLevel.Tokens

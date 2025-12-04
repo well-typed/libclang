@@ -44,10 +44,13 @@ module Clang.HighLevel.Types (
   , CursorSpelling(..)
     -- * Declaration classification
   , DeclarationClassification(..)
+    -- * Evaluation
+  , EvalResult(..)
   ) where
 
 import Clang.HighLevel.Declaration
 import Clang.HighLevel.Diagnostics
+import Clang.HighLevel.Evaluate
 import Clang.HighLevel.Fold
 import Clang.HighLevel.SourceLoc
 import Clang.HighLevel.Tokens
