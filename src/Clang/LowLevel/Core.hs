@@ -1770,9 +1770,6 @@ clang_EvalResult_getAsDouble = liftIO . nowrapper_EvalResult_getAsDouble
 -- | Returns the evaluation result as a constant string if the kind is other
 -- than @Int@ or @float@.
 --
--- User must not free this pointer, instead call @clang_EvalResult_dispose@ on
--- the @CXEvalResult@ returned by @clang_Cursor_Evaluate@.
---
 -- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gae387ea1b7a8c2d54a324161a856b77dd>
 clang_EvalResult_getAsStr :: MonadIO m => CXEvalResult -> m String
 clang_EvalResult_getAsStr = liftIO . (peekCString <=< wrap_EvalResult_getAsStr)
