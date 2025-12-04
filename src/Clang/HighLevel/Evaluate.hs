@@ -43,7 +43,7 @@ clang_evaluate cursor =
         Right CXEval_UnExposed -> return Nothing
         Right CXEval_Int -> fmap (Just . EvalResultInteger) $ do
           isUnsigned <- clang_EvalResult_isUnsignedInt er
-          if isUnsigned /= 0
+          if isUnsigned
             then toInteger <$> clang_EvalResult_getAsUnsigned er
             else toInteger <$> clang_EvalResult_getAsLongLong er
         Right CXEval_Float ->

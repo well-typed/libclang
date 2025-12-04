@@ -1750,8 +1750,9 @@ clang_EvalResult_getAsLongLong = liftIO . nowrapper_EvalResult_getAsLongLong
 -- resulted in an unsigned integer.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gad72ab38051388e5ed607ce5ce890b2ac>
-clang_EvalResult_isUnsignedInt :: MonadIO m => CXEvalResult -> m CUInt
-clang_EvalResult_isUnsignedInt = liftIO . nowrapper_EvalResult_isUnsignedInt
+clang_EvalResult_isUnsignedInt :: MonadIO m => CXEvalResult -> m Bool
+clang_EvalResult_isUnsignedInt =
+    liftIO . fmap cToBool . nowrapper_EvalResult_isUnsignedInt
 
 -- | Returns the evaluation result as an unsigned integer if the kind is @Int@
 -- and @clang_EvalResult_isUnsignedInt@ is non-zero.
