@@ -219,6 +219,7 @@ module Clang.LowLevel.Core (
   , clang_CXRewriter_writeMainFileToStdOut
   , clang_CXRewriter_dispose
     -- * Auxiliary
+  , IsNullPtr(..)
   , nullCursor
   ) where
 
@@ -615,7 +616,7 @@ clang_getDiagnosticFixIt diagnostic fixit = liftIO $
 -- <https://clang.llvm.org/doxygen/group__CINDEX.html#gacdb7815736ca709ce9a5e1ec2b7e16ac>
 newtype CXTranslationUnit = CXTranslationUnit (Ptr ())
   deriving stock (Show)
-  deriving newtype (Storable)
+  deriving newtype (Storable, IsNullPtr)
 
 -- | An opaque type representing target information for a given translation
 -- unit.
@@ -1839,6 +1840,7 @@ clang_getCursorExtent cursor = liftIO $
 
 newtype CXToken = CXToken (Ptr ())
   deriving stock (Show)
+  deriving newtype (IsNullPtr)
 
 foreign import capi unsafe "clang_wrappers.h wrap_getToken"
   wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO CXToken
