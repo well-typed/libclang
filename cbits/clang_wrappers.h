@@ -267,7 +267,7 @@ static inline void wrap_disposeString(const CXString* string) {
  * Miscellaneous utility functions
  */
 
-static inline CXEvalResult wrap_Cursor_Evaluate(CXCursor* cursor) {
+static inline CXEvalResult wrap_Cursor_Evaluate(const CXCursor* cursor) {
     return clang_Cursor_Evaluate(*cursor);
 }
 
