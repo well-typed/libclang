@@ -203,13 +203,11 @@ deriving stock instance {-# OVERLAPPABLE #-} Show a => Show (Range a)
 data ShowFile = ShowFile | HideFile
 
 prettySingleLoc :: ShowFile -> SingleLoc -> String
-prettySingleLoc showFile loc =
-    intercalate ":" . concat $ [
-        [ getSourcePath singleLocPath | ShowFile <- [showFile] ]
-      , [ show singleLocLine
-        , show singleLocColumn
-        ]
-      ]
+prettySingleLoc showFile loc = case showFile of
+    -- Use space instead of first colon to avoid GHC literate preprocessor mangling
+    ShowFile -> getSourcePath singleLocPath ++ " "
+                  ++ show singleLocLine ++ ":" ++ show singleLocColumn
+    HideFile -> show singleLocLine ++ ":" ++ show singleLocColumn
   where
     SingleLoc{singleLocPath, singleLocLine, singleLocColumn} = loc
 
