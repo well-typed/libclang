@@ -15,6 +15,7 @@ tested-with:
    || ==9.8.2
    || ==9.10.2
    || ==9.12.2
+   || ==9.14.1
 
 extra-source-files:
   autogen/Version_libclang_bindings.hs.in
@@ -34,7 +35,7 @@ common lang
     -Wall -Widentities -Wprepositive-qualified-module
     -Wredundant-constraints -Wunused-packages
 
-  build-depends:      base >=4.16 && <4.22
+  build-depends:      base >=4.16 && <4.23
   default-language:   GHC2021
   default-extensions:
 
@@ -175,8 +176,8 @@ test-suite test-clang-bindings
 
   -- Inherited dependencies
   build-depends:
-    , containers        >=0.6  && <0.8
-    , QuickCheck        >=2.14 && <2.17
+    , containers        >=0.6  && <0.9
+    , QuickCheck        >=2.14 && <2.18
     , tasty             >=1.5  && <1.6
     , tasty-hunit       >=0.10 && <0.11
     , tasty-quickcheck  >=0.11 && <0.12
