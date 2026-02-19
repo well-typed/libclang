@@ -1,4 +1,4 @@
-name: cabal-fmt
+name: stylish-haskell
 
 on:
   push:
@@ -12,24 +12,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-cabal-fmt:
-    name: cabal-fmt
+  lint-stylish-haskell:
+    name: stylish-haskell
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
       uses: actions/checkout@v5
 
-    - name: 🛠️ Setup cabal-fmt
-      uses: jorisdral/actions/setup-cabal-fmt@main
+    - name: 🛠️ Setup stylish-haskell
+      uses: jorisdral/actions/setup-stylish-haskell@stylish-haskell-v0
       with:
-        cabal-fmt-version: "0.1.12"
-        ghc-version: "9.6"
-        cabal-version: "3.12"
+        stylish-haskell-version: "0.15.1.0"
+        ghc-version: "9.12"
+        cabal-version: "3.16"
         # The index-state is fixed to enable caching and ensure that the version
         # regardless of the current state of Hackage head.
         # If you want a newer version of cabal-fmt, use a more recent time.
         #
-        hackage-index-state: "2025-10-28T00:00:00Z"
+        hackage-index-state: "2026-02-19T00:00:00Z"
 
-    - name: 🎗️ Lint with cabal-fmt
-      run: ./scripts/ci/run-cabal-fmt.sh && git diff --exit-code
+    - name: 🎗️ Lint with stylish-haskell
+      run: ./scripts/ci/format-stylish-haskell.sh && git diff --exit-code
