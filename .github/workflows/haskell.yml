@@ -170,8 +170,14 @@ jobs:
         echo "--- Home directory size ---"
         du -sh $HOME
 
-    - name: 🛠️ cabal.project
-      run: cp cabal.project.ci cabal.project
+    - name: 🛠️ Configure
+      run: |
+        cabal configure \
+          --enable-tests \
+          --enable-benchmarks \
+          --disable-documentation \
+          --ghc-options="-Werror"
+        cat cabal.project.local
 
     - name: 💾 Generate Cabal plan
       run: cabal build all --dry-run
