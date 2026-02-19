@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Distribution.Simple (defaultMainWithHooks, autoconfUserHooks)
+import Distribution.Simple (autoconfUserHooks, defaultMainWithHooks)
 
 main :: IO ()
 main = defaultMainWithHooks autoconfUserHooks
