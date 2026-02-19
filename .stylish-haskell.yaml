@@ -13,6 +13,7 @@ steps:
       space_surround: false
       post_qualify: true
       group_imports: false
+  - trailing_whitespace: {}
 columns: 80
 newline: native
 # These syntax-affecting language extensions are enabled so that
