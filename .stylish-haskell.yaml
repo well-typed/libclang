@@ -12,33 +12,7 @@ steps:
       separate_lists: true
       space_surround: false
       post_qualify: true
-      # Import groups in order from most general to most specific:
-      # 1. Base and external packages
-      # 2. clang modules
-      # 3. hs-bindgen-runtime modules
-      # 4. hs-bindgen modules
-      group_imports: true
-      # Group rules in order from most general to most specific:
-      # 1. Prelude (always first, standalone)
-      # 2. Base library modules sub-grouped by top-level module (Control, Data, System, etc.)
-      # 3. External library modules sub-grouped by top-level package name
-      # 4. c-expr modules sub-grouped by module hierarchy
-      # 5. Clang modules sub-grouped by module hierarchy
-      # 6. hs-bindgen-runtime modules sub-grouped by module hierarchy
-      # 7. hs-bindgen modules sub-grouped by module hierarchy
-      group_rules:
-        - match: "^Prelude$"
-        - match: "^(Control\\.|Data\\.|System\\.|Text\\.|GHC\\.|Foreign|Foreign\\.|Unsafe\\.|Debug\\.|Network\\.|Test\\.|Numeric\\.|Options\\.|Language\\.|Optics\\.|DeBruijn\\.|Prettyprinter\\.)"
-        - match: "^[A-Z][a-zA-Z0-9_]*\\."
-          sub_group: "^[^.]+"
-        - match: "^C\\."
-          sub_group: "^C\\.[^.]+"
-        - match: "^Clang\\."
-          sub_group: "^Clang\\.[^.]+"
-        - match: "^HsBindgen\\.Runtime\\."
-          sub_group: "^HsBindgen\\.Runtime\\.[^.]+"
-        - match: "^HsBindgen\\."
-          sub_group: "^HsBindgen\\.[^.]+"
+      group_imports: false
 columns: 80
 newline: native
 # These syntax-affecting language extensions are enabled so that
