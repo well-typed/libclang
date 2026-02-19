@@ -151,6 +151,7 @@ module Clang.LowLevel.Core (
   , clang_Cursor_isAnonymous
   , clang_Cursor_isAnonymousRecordDecl
   , clang_getEnumConstantDeclValue
+  , clang_getEnumConstantDeclUnsignedValue
   , clang_getCanonicalType
   , clang_getTypedefName
   , clang_getUnqualifiedType
@@ -1500,6 +1501,27 @@ clang_getEnumConstantDeclValue cursor = liftIO $ do
 
     onHaskellHeap cursor $ \cursor' ->
       wrap_getEnumConstantDeclValue cursor'
+
+-- | Retrieve the integer value of an enum constant declaration as an unsigned
+-- value.
+--
+-- Use this instead of 'clang_getEnumConstantDeclValue' when the enum's
+-- underlying type is unsigned, to avoid misinterpreting high bit values as
+-- negative numbers.
+--
+-- Throws 'CallFailed' if the cursor does not reference an enum constant
+-- declaration.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__TYPES.html#ga0da1d74e0112e5a0e69d6fbc6743a1a1>
+clang_getEnumConstantDeclUnsignedValue ::
+     (MonadIO m, HasCallStack)
+  => CXCursor -> m CULLong
+clang_getEnumConstantDeclUnsignedValue cursor = liftIO $ do
+    cursorKind <- clang_getCursorKind cursor
+    unless (cursorKind == simpleEnum CXCursor_EnumConstantDecl) $
+      callFailedShow cursorKind
+    onHaskellHeap cursor $ \cursor' ->
+      wrap_getEnumConstantDeclUnsignedValue cursor'
 
 -- | Determine whether two CXTypes represent the same type.
 clang_equalTypes :: MonadIO m => CXType -> CXType -> m Bool
