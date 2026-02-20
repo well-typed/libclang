@@ -276,7 +276,7 @@ jobs:
       - name: "[build] Save cache"
         # Do not save the cache if it is disabled in a manual dispatch or it
         # already exists.
-        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.enable_cache) && (steps.restore-cache.outputs.cache-hit != 'true') }}
+        if: ${{ (github.event_name != 'workflow_dispatch' || inputs.enable_cache == 'true') && (steps.restore-cache.outputs.cache-hit != 'true') }}
         uses: actions/cache/save@v4
         with:
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
