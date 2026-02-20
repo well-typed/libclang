@@ -36,7 +36,7 @@ on:
         required: true
       enable_cache:
         description: "Enable cache (restore and save)"
-        default: true
+        default: "true"
         required: true
       debug_tmate:
         description: "Debug with tmate after {init, checkout, setup, build, test}"
@@ -256,7 +256,7 @@ jobs:
 
       - name: "[setup] Restore cache"
         # Do not restore the cache if it is disabled in a manual dispatch.
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.enable_cache }}
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.enable_cache == 'true' }}
         id: restore-cache
         uses: actions/cache/restore@v4
         env:
