@@ -29,6 +29,15 @@ extra-doc-files:
   CHANGELOG.md
   README.md
 
+source-repository head
+  type:     git
+  location: https://github.com/well-typed/libclang
+
+source-repository this
+  type:     git
+  location: https://github.com/well-typed/libclang
+  tag:      bloomfilter-blocked-0.1.0
+
 flag dev
   description: Build debugging utilities for developing clang itself
   default:     False
