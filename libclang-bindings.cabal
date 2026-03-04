@@ -25,6 +25,19 @@ extra-source-files:
   clang.buildinfo.in
   configure
 
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
+source-repository head
+  type:     git
+  location: https://github.com/well-typed/libclang
+
+source-repository this
+  type:     git
+  location: https://github.com/well-typed/libclang
+  tag:      bloomfilter-blocked-0.1.0
+
 flag dev
   description: Build debugging utilities for developing clang itself
   default:     False
@@ -37,12 +50,12 @@ common lang
 
   build-depends:      base >=4.16 && <4.23
   default-language:   GHC2021
-  default-extensions:
 
--- We don't provide a shared list of default extension between the library
--- and the clang-tutorial example; this way we can ensure that mere
--- /usage/ of the library does not result in requirements for enabled
--- language extensions.
+  -- We don't provide a shared list of default extension between the library
+  -- and the clang-tutorial example; this way we can ensure that mere
+  -- /usage/ of the library does not result in requirements for enabled
+  -- language extensions.
+  default-extensions:
 
 library
   import:             lang
@@ -99,17 +112,18 @@ library
     Version_libclang_bindings
 
   autogen-modules:    Version_libclang_bindings
+
+  -- External dependencies
   build-depends:
     , data-default   >=0.7   && <0.9
     , exceptions     >=0.10  && <0.11
     , text           >=1.2   && <2.2
     , unliftio-core  >=0.2.1 && <0.3
 
-  -- External dependencies
+  -- C bindings
   if impl(ghc <9.4)
     build-depends: data-array-byte >=0.1.0.1 && <0.2
 
-  -- C bindings
   include-dirs:       cbits
   cc-options:         -Wall
   c-sources:          cbits/clang_wrappers.c
@@ -127,6 +141,7 @@ executable clang-bootstrap
   else
     buildable: False
 
+  -- New dependencies
   build-depends:
     , bytestring  >=0.11.4.0 && <0.13
     , parsec      >=3.1      && <3.2
@@ -136,14 +151,15 @@ test-suite clang-tutorial
   type:           exitcode-stdio-1.0
   main-is:        clang-tutorial.hs
   hs-source-dirs: clang-tutorial
-  build-depends:  libclang-bindings
 
   -- Internal dependencies
+  build-depends:  libclang-bindings
+
+  -- Inherited dependencies
   build-depends:
     , data-default
     , text
 
--- Inherited dependencies
 test-suite test-clang-bindings
   import:             lang
   type:               exitcode-stdio-1.0
@@ -166,20 +182,19 @@ test-suite test-clang-bindings
     Test.Util.Shape
     Test.Version
 
+  -- Internal dependencies
   build-depends:      libclang-bindings
 
-  -- Internal dependencies
+  -- Inherited dependencies
   build-depends:
     , data-default
     , mtl
     , text
 
-  -- Inherited dependencies
+  -- New dependencies
   build-depends:
     , containers        >=0.6  && <0.9
     , QuickCheck        >=2.14 && <2.18
     , tasty             >=1.5  && <1.6
     , tasty-hunit       >=0.10 && <0.11
     , tasty-quickcheck  >=0.11 && <0.12
-
--- New dependencies
