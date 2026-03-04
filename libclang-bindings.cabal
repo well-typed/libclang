@@ -25,6 +25,10 @@ extra-source-files:
   clang.buildinfo.in
   configure
 
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
 flag dev
   description: Build debugging utilities for developing clang itself
   default:     False
