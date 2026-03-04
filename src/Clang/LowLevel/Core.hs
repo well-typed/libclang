@@ -145,6 +145,7 @@ module Clang.LowLevel.Core (
   , clang_getArraySize
   , clang_Type_getSizeOf
   , clang_Type_getAlignOf
+  , clang_Type_getOffsetOf
   , clang_Type_isTransparentTagTypedef
   , clang_Cursor_getOffsetOfField
   , clang_Cursor_getStorageClass
@@ -239,6 +240,7 @@ import Clang.Args
 import Clang.Enum.Bitfield
 import Clang.Enum.Simple
 import Clang.Internal.ByValue
+import Clang.Internal.ConstPtr (ConstPtr (ConstPtr))
 import Clang.Internal.CXString ()
 import Clang.Internal.FFI
 import Clang.Internal.Results
@@ -1423,6 +1425,18 @@ clang_Type_getAlignOf :: (MonadIO m, HasCallStack) => CXType -> m CLLong
 clang_Type_getAlignOf typ = liftIO $
     onHaskellHeap typ $ \typ' -> ensureNotInRange @CXTypeLayoutError $
       wrap_Type_getAlignOf typ'
+
+-- | Return the offset of a field named S in a record of type T in bits as it
+-- would be returned by offsetof as per C++11[18.2p4].
+--
+-- Throws 'CallFailed' with 'CXTypeLayoutError' on error.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__TYPES.html#gab543536d5c18efb3e23a1b7903fb494d>
+clang_Type_getOffsetOf :: (MonadIO m, HasCallStack) => CXType -> String -> m CLLong
+clang_Type_getOffsetOf typ fieldName = liftIO $
+    onHaskellHeap typ $ \typ' -> ensureNotInRange @CXTypeLayoutError $
+    withCString fieldName $ \fieldName' ->
+      wrap_Type_getOffsetOf typ' (ConstPtr fieldName')
 
 -- | Determine if a typedef is 'transparent' tag.
 --

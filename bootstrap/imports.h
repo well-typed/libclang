@@ -55,7 +55,7 @@ unsigned clang_Type_isTransparentTagTypedef (CXType T);
 long long clang_Type_getAlignOf (CXType T);
 // CXType clang_Type_getClassType (CXType T); // C++
 long long clang_Type_getSizeOf (CXType T);
-// long long clang_Type_getOffsetOf (CXType T, const char *S) // TODO: generator doesn't know * yet
+long long clang_Type_getOffsetOf (CXType T, const char * S);
 CXType clang_Type_getModifiedType (CXType T);
 CXType clang_Type_getValueType (CXType CT);
 long long clang_Cursor_getOffsetOfField (CXCursor C);
