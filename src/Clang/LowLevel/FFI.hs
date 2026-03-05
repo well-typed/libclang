@@ -8,210 +8,242 @@ import Clang.LowLevel.Core.Enums
 import Clang.LowLevel.Core.Pointers
 import Clang.LowLevel.Core.Structs
 import Foreign.C.Types
+import Foreign.Ptr
 
--- Type information for CXCursors https://clang.llvm.org/doxygen/group__CINDEX__TYPES.html
+-- *** Top-level ***
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getCursorType :: R CXCursor_ -> W CXType_ -> IO ()
+-- <https://clang.llvm.org/doxygen/group__CINDEX.html>
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getTypeSpelling :: R CXType_ -> W CXString_ -> IO ()
+foreign import capi unsafe "clang_wrappers.h clang_createIndex"
+  nowrapper_createIndex :: CInt -> CInt -> IO CXIndex
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getTypedefDeclUnderlyingType :: R CXCursor_ -> W CXType_ -> IO ()
+foreign import capi unsafe "clang_wrappers.h clang_disposeIndex"
+  nowrapper_disposeIndex :: CXIndex -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getEnumDeclIntegerType :: R CXCursor_ -> W CXType_ -> IO ()
+-- OMITTED: CXIndex             clang_createIndexWithOptions (const CXIndexOptions * options);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getEnumConstantDeclValue :: R CXCursor_ -> IO CLLong
+-- OMITTED: void                clang_CXIndex_setGlobalOptions (CXIndex, unsigned options);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getEnumConstantDeclUnsignedValue :: R CXCursor_ -> IO CULLong
+-- OMITTED: unsigned            clang_CXIndex_getGlobalOptions (CXIndex);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isBitField :: R CXCursor_ -> IO CUInt
+-- OMITTED: void                clang_CXIndex_setInvocationEmissionPathOption (CXIndex, const char * Path);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getFieldDeclBitWidth :: R CXCursor_ -> IO CInt
+-- OMITTED: unsigned            clang_isFileMultipleIncludeGuarded (CXTranslationUnit tu, CXFile file);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_getNumArguments :: R CXCursor_ -> IO CInt
+foreign import capi unsafe "clang_wrappers.h clang_getFile"
+  nowrapper_getFile :: CXTranslationUnit -> ConstPtr CChar -> IO CXFile
+
+-- OMITTED: const char *        clang_getFileContents (CXTranslationUnit tu, CXFile file, size_t * size);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_getArgument :: R CXCursor_ -> CUInt -> W CXCursor_ -> IO ()
+  wrap_getLocation :: CXTranslationUnit -> CXFile -> CUInt -> CUInt -> W CXSourceLocation_ -> IO ()
 
--- int clang_Cursor_getNumTemplateArguments (CXCursor C); // C++
+-- OMITTED: CXSourceLocation    clang_getLocationForOffset (CXTranslationUnit tu, CXFile file, unsigned offset);
 
--- enum CXTemplateArgumentKind clang_Cursor_getTemplateArgumentKind (CXCursor C, unsigned I); // C++
+-- OMITTED: CXSourceRangeList * clang_getSkippedRanges (CXTranslationUnit tu, CXFile file);
 
--- CXType clang_Cursor_getTemplateArgumentType (CXCursor C, unsigned I); // C++
+-- OMITTED: CXSourceRangeList * clang_getAllSkippedRanges (CXTranslationUnit tu);
 
--- long long clang_Cursor_getTemplateArgumentValue (CXCursor C, unsigned I); // C++
+foreign import capi unsafe "clang_wrappers.h clang_getNumDiagnostics"
+  nowrapper_getNumDiagnostics :: CXTranslationUnit -> IO CUInt
 
--- unsigned long long clang_Cursor_getTemplateArgumentUnsignedValue (CXCursor C, unsigned I); // C++
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnostic"
+  nowrapper_getDiagnostic :: CXTranslationUnit -> CUInt -> IO CXDiagnostic
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_equalTypes :: R CXType_ -> R CXType_ -> IO CUInt
+-- OMITTED: CXDiagnosticSet     clang_getDiagnosticSetFromTU (CXTranslationUnit Unit);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getCanonicalType :: R CXType_ -> W CXType_ -> IO ()
+-- *** Diagnostic reporting ***
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_isConstQualifiedType :: R CXType_ -> IO CUInt
+-- <https://clang.llvm.org/doxygen/group__CINDEX__DIAG.html>
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isMacroFunctionLike :: R CXCursor_ -> IO CUInt
+foreign import capi unsafe "clang_wrappers.h clang_getNumDiagnosticsInSet"
+  nowrapper_getNumDiagnosticsInSet :: CXDiagnosticSet -> IO CUInt
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isMacroBuiltin :: R CXCursor_ -> IO CUInt
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnosticInSet"
+  nowrapper_getDiagnosticInSet :: CXDiagnosticSet -> CUInt -> IO CXDiagnostic
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isFunctionInlined :: R CXCursor_ -> IO CUInt
+-- OMITTED: CXDiagnosticSet           clang_loadDiagnostics (const char * file, enum CXLoadDiag_Error * error, CXString * errorString);
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_isVolatileQualifiedType :: R CXType_ -> IO CUInt
+foreign import capi unsafe "clang_wrappers.h clang_disposeDiagnosticSet"
+  nowrapper_disposeDiagnosticSet :: CXDiagnosticSet -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_isRestrictQualifiedType :: R CXType_ -> IO CUInt
+foreign import capi unsafe "clang_wrappers.h clang_getChildDiagnostics"
+  nowrapper_getChildDiagnostics :: CXDiagnostic -> IO CXDiagnosticSet
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getAddressSpace :: R CXType_ -> IO CUInt
+foreign import capi unsafe "clang_wrappers.h clang_disposeDiagnostic"
+  nowrapper_disposeDiagnostic :: CXDiagnostic -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getTypedefName :: R CXType_ -> W CXString_ -> IO ()
+  wrap_formatDiagnostic :: CXDiagnostic -> CUInt -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h clang_defaultDiagnosticDisplayOptions"
+  nowrapper_defaultDiagnosticDisplayOptions :: IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnosticSeverity"
+  nowrapper_getDiagnosticSeverity :: CXDiagnostic -> IO (SimpleEnum CXDiagnosticSeverity)
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getPointeeType :: R CXType_ -> W CXType_ -> IO ()
-
--- CXType clang_getUnqualifiedType (CXType CT); // this is special case
-
--- CXType clang_getNonReferenceType (CXType CT); // this is apparently special case as well (not available in older libclang)
+  wrap_getDiagnosticLocation :: CXDiagnostic -> W CXSourceLocation_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getTypeDeclaration :: R CXType_ -> W CXCursor_ -> IO ()
-
--- CXString clang_getDeclObjCTypeEncoding (CXCursor C); // Objective C
-
--- CXString clang_Type_getObjCEncoding (CXType type); // Objective C
+  wrap_getDiagnosticSpelling :: CXDiagnostic -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getTypeKindSpelling :: SimpleEnum CXTypeKind -> W CXString_ -> IO ()
+  wrap_getDiagnosticOption :: CXDiagnostic -> W CXString_ -> W CXString_ -> IO ()
 
--- enum CXCallingConv clang_getFunctionTypeCallingConv (CXType T); // no enum
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_getResultType :: R CXType_ -> W CXType_ -> IO ()
-
--- int clang_getExceptionSpecificationType (CXType T); // C++
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnosticCategory"
+  nowrapper_getDiagnosticCategory :: CXDiagnostic -> IO CUInt
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getNumArgTypes :: R CXType_ -> IO CInt
+  wrap_getDiagnosticCategoryText :: CXDiagnostic -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnosticNumRanges"
+  nowrapper_getDiagnosticNumRanges :: CXDiagnostic -> IO CUInt
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getArgType :: R CXType_ -> CUInt -> W CXType_ -> IO ()
+  wrap_getDiagnosticRange :: CXDiagnostic -> CUInt -> W CXSourceRange_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h clang_getDiagnosticNumFixIts"
+  nowrapper_getDiagnosticNumFixIts :: CXDiagnostic -> IO CUInt
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getObjCObjectBaseType :: R CXType_ -> W CXType_ -> IO ()
+  wrap_getDiagnosticFixIt :: CXDiagnostic -> CUInt -> W CXSourceRange_ -> W CXString_ -> IO ()
+
+-- *** File manipulation routines ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html>
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getNumObjCProtocolRefs :: R CXType_ -> IO CUInt
+  wrap_getFileName :: CXFile -> W CXString_ -> IO ()
+
+-- OMITTED: time_t   clang_getFileTime (CXFile SFile);
+
+-- OMITTED: int      clang_getFileUniqueID (CXFile file, CXFileUniqueID * outID);
+
+-- OMITTED: int      clang_File_isEqual (CXFile file1, CXFile file2);
+
+-- OMITTED: CXString clang_File_tryGetRealPathName (CXFile file);
+
+-- *** Physical source locations ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html>
+
+-- OMITTED: CXSourceLocation clang_getNullLocation (void);
+
+-- OMITTED: unsigned         clang_equalLocations (CXSourceLocation loc1, CXSourceLocation loc2);
+
+-- OMITTED: unsigned         clang_isBeforeInTranslationUnit (CXSourceLocation loc1, CXSourceLocation loc2);
+
+-- OMITTED: int              clang_Location_isInSystemHeader (CXSourceLocation location);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getObjCProtocolDecl :: R CXType_ -> CUInt -> W CXCursor_ -> IO ()
+  wrap_Location_isFromMainFile :: R CXSourceLocation_ -> IO CInt
+
+-- OMITTED: CXSourceRange    clang_getNullRange (void);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getNumObjCTypeArgs :: R CXType_ -> IO CUInt
+  wrap_getRange :: R CXSourceLocation_ -> R CXSourceLocation_ -> W CXSourceRange_ -> IO ()
+
+-- OMITTED: unsigned         clang_equalRanges (CXSourceRange range1, CXSourceRange range2);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getObjCTypeArg :: R CXType_ -> CUInt -> W CXType_ -> IO ()
+  wrap_Range_isNull :: R CXSourceRange_ -> IO CInt
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_isFunctionTypeVariadic :: R CXType_ -> IO CUInt
+  wrap_getExpansionLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getCursorResultType :: R CXCursor_ -> W CXType_ -> IO ()
+  wrap_getPresumedLocation :: R CXSourceLocation_ -> W CXString_ -> Ptr CUInt -> Ptr CUInt -> IO ()
+
+-- OMITTED: void             clang_getInstantiationLocation (CXSourceLocation location, CXFile * file, unsigned * line, unsigned * column, unsigned * offset);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getCursorExceptionSpecificationType :: R CXCursor_ -> IO CInt
+  wrap_getSpellingLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_isPODType :: R CXType_ -> IO CUInt
+  wrap_getFileLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getElementType :: R CXType_ -> W CXType_ -> IO ()
+  wrap_getRangeStart :: R CXSourceRange_ -> W CXSourceLocation_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getNumElements :: R CXType_ -> IO CLLong
+  wrap_getRangeEnd :: R CXSourceRange_ -> W CXSourceLocation_ -> IO ()
+
+-- OMITTED: void             clang_disposeSourceRangeList (CXSourceRangeList * ranges);
+
+-- *** String manipulation routines ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__STRING.html>
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getArrayElementType :: R CXType_ -> W CXType_ -> IO ()
+  wrap_getCString :: R CXString_ -> IO (ConstPtr CChar)
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getArraySize :: R CXType_ -> IO CLLong
+  wrap_disposeString :: R CXString_ -> IO ()
+
+-- OMITTED: void         clang_disposeStringSet (CXStringSet * set);
+
+-- *** Translation unit manipulation ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__TRANSLATION__UNIT.html>
+
+-- OMITTED: CXString          clang_getTranslationUnitSpelling (CXTranslationUnit CTUnit);
+
+-- OMITTED: CXTranslationUnit clang_createTranslationUnitFromSourceFile (CXIndex CIdx, const char * source_filename, int num_clang_command_line_args, const char * const * clang_command_line_args, unsigned num_unsaved_files, struct CXUnsavedFile * unsaved_files);
+
+-- OMITTED: CXTranslationUnit clang_createTranslationUnit (CXIndex CIdx, const char * ast_filename);
+
+-- OMITTED: enum CXErrorCode  clang_createTranslationUnit2 (CXIndex CIdx, const char * ast_filename, CXTranslationUnit * out_TU);
+
+-- OMITTED: unsigned          clang_defaultEditingTranslationUnitOptions (void);
+
+foreign import capi unsafe "clang_wrappers.h clang_parseTranslationUnit"
+  nowrapper_parseTranslationUnit :: CXIndex -> ConstPtr CChar -> ConstPtr (ConstPtr CChar) -> CInt -> Ptr CXUnsavedFile -> CUInt -> CUInt -> IO CXTranslationUnit
+
+foreign import capi unsafe "clang_wrappers.h clang_parseTranslationUnit2"
+  nowrapper_parseTranslationUnit2 :: CXIndex -> ConstPtr CChar -> ConstPtr (ConstPtr CChar) -> CInt -> Ptr CXUnsavedFile -> CUInt -> CUInt -> Ptr CXTranslationUnit -> IO (SimpleEnum (Maybe CXErrorCode))
+
+-- OMITTED: enum CXErrorCode  clang_parseTranslationUnit2FullArgv (CXIndex CIdx, const char * source_filename, const char * const * command_line_args, int num_command_line_args, struct CXUnsavedFile * unsaved_files, unsigned num_unsaved_files, unsigned options, CXTranslationUnit * out_TU);
+
+-- OMITTED: unsigned          clang_defaultSaveOptions (CXTranslationUnit TU);
+
+-- OMITTED: int               clang_saveTranslationUnit (CXTranslationUnit TU, const char * FileName, unsigned options);
+
+-- OMITTED: unsigned          clang_suspendTranslationUnit (CXTranslationUnit TU);
+
+foreign import capi unsafe "clang_wrappers.h clang_disposeTranslationUnit"
+  nowrapper_disposeTranslationUnit :: CXTranslationUnit -> IO ()
+
+-- OMITTED: unsigned          clang_defaultReparseOptions (CXTranslationUnit TU);
+
+-- OMITTED: int               clang_reparseTranslationUnit (CXTranslationUnit TU, unsigned num_unsaved_files, struct CXUnsavedFile * unsaved_files, unsigned options);
+
+-- OMITTED: const char *      clang_getTUResourceUsageName (enum CXTUResourceUsageKind kind);
+
+-- OMITTED: CXTUResourceUsage clang_getCXTUResourceUsage (CXTranslationUnit TU);
+
+-- OMITTED: void              clang_disposeCXTUResourceUsage (CXTUResourceUsage usage);
+
+foreign import capi unsafe "clang_wrappers.h clang_getTranslationUnitTargetInfo"
+  nowrapper_getTranslationUnitTargetInfo :: CXTranslationUnit -> IO CXTargetInfo
+
+foreign import capi unsafe "clang_wrappers.h clang_TargetInfo_dispose"
+  nowrapper_TargetInfo_dispose :: CXTargetInfo -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getNamedType :: R CXType_ -> W CXType_ -> IO ()
+  wrap_TargetInfo_getTriple :: CXTargetInfo -> W CXString_ -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_isTransparentTagTypedef :: R CXType_ -> IO CUInt
+-- OMITTED: int               clang_TargetInfo_getPointerWidth (CXTargetInfo Info);
 
--- enum CXTypeNullabilityKind clang_Type_getNullability (CXType T); // no enum
+-- *** Cursor manipulations ***
 
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getAlignOf :: R CXType_ -> IO CLLong
-
--- CXType clang_Type_getClassType (CXType T); // C++
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getSizeOf :: R CXType_ -> IO CLLong
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getOffsetOf :: R CXType_ -> ConstPtr CChar -> IO CLLong
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getModifiedType :: R CXType_ -> W CXType_ -> IO ()
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Type_getValueType :: R CXType_ -> W CXType_ -> IO ()
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_getOffsetOfField :: R CXCursor_ -> IO CLLong
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isAnonymous :: R CXCursor_ -> IO CUInt
-
-foreign import capi unsafe "clang_wrappers.h"
-  wrap_Cursor_isAnonymousRecordDecl :: R CXCursor_ -> IO CUInt
-
--- unsigned clang_Cursor_isInlineNamespace (CXCursor C); // C++
-
--- int clang_Type_getNumTemplateArguments (CXType T); // C++
-
--- CXType clang_Type_getTemplateArgumentAsType (CXType T, unsigned i); // C++
-
--- enum CXRefQualifierKind clang_Type_getCXXRefQualifier (CXType T); // C++
-
--- unsigned clang_isVirtualBase (CXCursor); // C++
-
--- enum CX_CXXAccessSpecifier clang_getCXXAccessSpecifier (CXCursor); // C++
-
--- enum CX_BinaryOperatorKind clang_Cursor_getBinaryOpcode (CXCursor C); // C++
-
--- CXString clang_Cursor_getBinaryOpcodeStr (enum CX_BinaryOperatorKind Op); // C++
-
--- enum CX_StorageClass clang_Cursor_getStorageClass (CXCursor); // no enum
-
--- unsigned clang_getNumOverloadedDecls (CXCursor cursor); // C++
-
--- CXCursor clang_getOverloadedDecl (CXCursor cursor, unsigned index); // C++
-
--- Cursor manipulations https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__MANIP.html
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__MANIP.html>
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getNullCursor :: W CXCursor_ -> IO ()
 
--- CXCursor clang_getTranslationUnitCursor (CXTranslationUnit unit); CXTranslationUnit is defined in LowLevel.Core
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTranslationUnitCursor :: CXTranslationUnit -> W CXCursor_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_equalCursors :: R CXCursor_ -> R CXCursor_ -> IO CUInt
@@ -267,9 +299,9 @@ foreign import capi unsafe "clang_wrappers.h"
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorAvailability :: R CXCursor_ -> IO (SimpleEnum CXAvailabilityKind)
 
--- int clang_getCursorPlatformAvailability (CXCursor cursor, int *always_deprecated, CXString *deprecated_message, int *always_unavailable, CXString *unavailable_message, CXPlatformAvailability *availability, int availability_size);
+-- OMITTED: int                     clang_getCursorPlatformAvailability (CXCursor cursor, int * always_deprecated, CXString * deprecated_message, int * always_unavailable, CXString * unavailable_message, CXPlatformAvailability * availability, int availability_size);
 
--- void clang_disposeCXPlatformAvailability (CXPlatformAvailability *availability);
+-- OMITTED: void                    clang_disposeCXPlatformAvailability (CXPlatformAvailability * availability);
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_Cursor_getVarDeclInitializer :: R CXCursor_ -> W CXCursor_ -> IO ()
@@ -280,19 +312,21 @@ foreign import capi unsafe "clang_wrappers.h"
 foreign import capi unsafe "clang_wrappers.h"
   wrap_Cursor_hasVarDeclExternalStorage :: R CXCursor_ -> IO CInt
 
--- enum CXLanguageKind clang_getCursorLanguage (CXCursor cursor); // no enum
+-- OMITTED: enum CXLanguageKind     clang_getCursorLanguage (CXCursor cursor);
 
--- enum CXTLSKind clang_getCursorTLSKind (CXCursor cursor); // no enum
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorTLSKind :: R CXCursor_ -> IO (SimpleEnum CXTLSKind)
 
--- CXTranslationUnit clang_Cursor_getTranslationUnit (CXCursor cursor); CXTranslationUnit is defined in LowLevel.Core
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getTranslationUnit :: R CXCursor_ -> IO CXTranslationUnit
 
--- CXCursorSet clang_createCXCursorSet (void); // no cursor set
+-- OMITTED: CXCursorSet             clang_createCXCursorSet (void);
 
--- void clang_disposeCXCursorSet (CXCursorSet cset); // no cursor set
+-- OMITTED: void                    clang_disposeCXCursorSet (CXCursorSet cset);
 
--- unsigned clang_CXCursorSet_contains (CXCursorSet cset, CXCursor cursor); // no cursor set
+-- OMITTED: unsigned                clang_CXCursorSet_contains (CXCursorSet cset, CXCursor cursor);
 
--- unsigned clang_CXCursorSet_insert (CXCursorSet cset, CXCursor cursor); // no cursor set
+-- OMITTED: unsigned                clang_CXCursorSet_insert (CXCursorSet cset, CXCursor cursor);
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorSemanticParent :: R CXCursor_ -> W CXCursor_ -> IO ()
@@ -300,37 +334,387 @@ foreign import capi unsafe "clang_wrappers.h"
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorLexicalParent :: R CXCursor_ -> W CXCursor_ -> IO ()
 
--- void clang_getOverriddenCursors (CXCursor cursor, CXCursor **overridden, unsigned *num_overridden); // C++?
+-- OMITTED: void                    clang_getOverriddenCursors (CXCursor cursor, CXCursor * * overridden, unsigned * num_overridden);
 
--- void clang_disposeOverriddenCursors (CXCursor *overridden); // C++?
+-- OMITTED: void                    clang_disposeOverriddenCursors (CXCursor * overridden);
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getIncludedFile :: R CXCursor_ -> IO CXFile
 
--- File manipulation routines https://clang.llvm.org/doxygen/group__CINDEX__FILES.html
+-- *** Mapping between cursors and source code  ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__SOURCE.html>
+
+-- OMITTED: CXCursor         clang_getCursor (CXTranslationUnit TU, CXSourceLocation Source);
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getFileName :: CXFile -> W CXString_ -> IO ()
-
--- Debugging facilities https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html
+  wrap_getCursorLocation :: R CXCursor_ -> W CXSourceLocation_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
-  wrap_getCursorKindSpelling :: SimpleEnum CXCursorKind -> W CXString_ -> IO ()
+  wrap_getCursorExtent :: R CXCursor_ -> W CXSourceRange_ -> IO ()
 
--- void clang_getDefinitionSpellingAndExtent (CXCursor, const char **startBuf, const char **endBuf, unsigned *startLine, unsigned *startColumn, unsigned *endLine, unsigned *endColumn);
+-- *** Type information for CXCursors ***
 
--- void clang_enableStackTraces (void);
+-- <https://clang.llvm.org/doxygen/group__CINDEX__TYPES.html>
 
--- void clang_executeOnThread (void(*fn)(void *), void *user_data, unsigned stack_size);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorType :: R CXCursor_ -> W CXType_ -> IO ()
 
--- Cross-referencing in the AST https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__XREF.html
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTypeSpelling :: R CXType_ -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTypedefDeclUnderlyingType :: R CXCursor_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getEnumDeclIntegerType :: R CXCursor_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getEnumConstantDeclValue :: R CXCursor_ -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getEnumConstantDeclUnsignedValue :: R CXCursor_ -> IO CULLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isBitField :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getFieldDeclBitWidth :: R CXCursor_ -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getNumArguments :: R CXCursor_ -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getArgument :: R CXCursor_ -> CUInt -> W CXCursor_ -> IO ()
+
+-- OMITTED: int                         clang_Cursor_getNumTemplateArguments (CXCursor C);
+
+-- OMITTED: enum CXTemplateArgumentKind clang_Cursor_getTemplateArgumentKind (CXCursor C, unsigned I);
+
+-- OMITTED: CXType                      clang_Cursor_getTemplateArgumentType (CXCursor C, unsigned I);
+
+-- OMITTED: long long                   clang_Cursor_getTemplateArgumentValue (CXCursor C, unsigned I);
+
+-- OMITTED: unsigned long long          clang_Cursor_getTemplateArgumentUnsignedValue (CXCursor C, unsigned I);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_equalTypes :: R CXType_ -> R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCanonicalType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isConstQualifiedType :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isMacroFunctionLike :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isMacroBuiltin :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isFunctionInlined :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isVolatileQualifiedType :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isRestrictQualifiedType :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getAddressSpace :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTypedefName :: R CXType_ -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getPointeeType :: R CXType_ -> W CXType_ -> IO ()
+
+-- OMITTED: CXType                      clang_getUnqualifiedType (CXType CT); // NOTE: does not exist before clang-16, so we define a custom wrapper in clang_wrappers.h
+
+-- OMITTED: CXType                      clang_getNonReferenceType (CXType CT);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTypeDeclaration :: R CXType_ -> W CXCursor_ -> IO ()
+
+-- OMITTED: CXString                    clang_getDeclObjCTypeEncoding (CXCursor C);
+
+-- OMITTED: CXString                    clang_Type_getObjCEncoding (CXType type);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTypeKindSpelling :: SimpleEnum CXTypeKind -> W CXString_ -> IO ()
+
+-- OMITTED: enum CXCallingConv          clang_getFunctionTypeCallingConv (CXType T);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getResultType :: R CXType_ -> W CXType_ -> IO ()
+
+-- OMITTED: int                         clang_getExceptionSpecificationType (CXType T);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getNumArgTypes :: R CXType_ -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getArgType :: R CXType_ -> CUInt -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getObjCObjectBaseType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getNumObjCProtocolRefs :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getObjCProtocolDecl :: R CXType_ -> CUInt -> W CXCursor_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getNumObjCTypeArgs :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getObjCTypeArg :: R CXType_ -> CUInt -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isFunctionTypeVariadic :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorResultType :: R CXCursor_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorExceptionSpecificationType :: R CXCursor_ -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isPODType :: R CXType_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getElementType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getNumElements :: R CXType_ -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getArrayElementType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getArraySize :: R CXType_ -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getNamedType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_isTransparentTagTypedef :: R CXType_ -> IO CUInt
+
+-- OMITTED: enum CXTypeNullabilityKind  clang_Type_getNullability (CXType T);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getAlignOf :: R CXType_ -> IO CLLong
+
+-- OMITTED: CXType                      clang_Type_getClassType (CXType T);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getSizeOf :: R CXType_ -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getOffsetOf :: R CXType_ -> ConstPtr CChar -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getModifiedType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Type_getValueType :: R CXType_ -> W CXType_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getOffsetOfField :: R CXCursor_ -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isAnonymous :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_isAnonymousRecordDecl :: R CXCursor_ -> IO CUInt
+
+-- OMITTED: unsigned                    clang_Cursor_isInlineNamespace (CXCursor C);
+
+-- OMITTED: int                         clang_Type_getNumTemplateArguments (CXType T);
+
+-- OMITTED: CXType                      clang_Type_getTemplateArgumentAsType (CXType T, unsigned i);
+
+-- OMITTED: enum CXRefQualifierKind     clang_Type_getCXXRefQualifier (CXType T);
+
+-- OMITTED: unsigned                    clang_isVirtualBase (CXCursor C);
+
+-- OMITTED: long long                   clang_getOffsetOfBase (CXCursor Parent, CXCursor Base);
+
+-- OMITTED: enum CX_CXXAccessSpecifier  clang_getCXXAccessSpecifier (CXCursor C);
+
+-- OMITTED: enum CX_BinaryOperatorKind  clang_Cursor_getBinaryOpcode (CXCursor C);
+
+-- OMITTED: CXString                    clang_Cursor_getBinaryOpcodeStr (enum CX_BinaryOperatorKind Op);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getStorageClass :: R CXCursor_ -> IO (SimpleEnum CX_StorageClass)
+
+-- OMITTED: unsigned                    clang_getNumOverloadedDecls (CXCursor cursor);
+
+-- OMITTED: CXCursor                    clang_getOverloadedDecl (CXCursor cursor, unsigned index);
+
+-- *** Traversing the AST with cursors ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html>
+
+-- OMITTED: unsigned clang_visitChildren (CXCursor parent, CXCursorVisitor visitor, CXClientData client_data);
+
+-- OMITTED: unsigned clang_visitChildrenWithBlock (CXCursor parent, CXCursorVisitorBlock block);
+
+-- *** Cross-referencing in the AST  ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__XREF.html>
+
+-- OMITTED: CXString         clang_getCursorUSR (CXCursor);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCClass (const char * class_name);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCCategory (const char * class_name, const char * category_name);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCProtocol (const char * protocol_name);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCIvar (const char * name, CXString classUSR);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCMethod (const char * name, unsigned isInstanceMethod, CXString classUSR);
+
+-- OMITTED: CXString         clang_constructUSR_ObjCProperty (const char * property, CXString classUSR);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorSpelling :: R CXCursor_ -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getSpellingNameRange :: R CXCursor_ -> CUInt -> CUInt -> W CXSourceRange_ -> IO ()
+
+-- OMITTED: unsigned         clang_PrintingPolicy_getProperty (CXPrintingPolicy Policy, enum CXPrintingPolicyProperty Property);
+
+-- OMITTED: void             clang_PrintingPolicy_setProperty (CXPrintingPolicy Policy, enum CXPrintingPolicyProperty Property, unsigned Value);
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorPrintingPolicy :: R CXCursor_ -> IO CXPrintingPolicy
 
+foreign import capi unsafe "clang_wrappers.h clang_PrintingPolicy_dispose"
+  nowrapper_PrintingPolicy_dispose :: CXPrintingPolicy -> IO ()
+
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorPrettyPrinted :: R CXCursor_ -> CXPrintingPolicy -> W CXString_ -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h clang_PrintingPolicy_dispose"
-  nowrapper_PrintingPolicy_dispose :: CXPrintingPolicy -> IO ()
+-- OMITTED: CXString         clang_getTypePrettyPrinted (CXType CT, CXPrintingPolicy cxPolicy);
+
+-- OMITTED: CXString         clang_getFullyQualifiedName (CXType CT, CXPrintingPolicy Policy, unsigned WithGlobalNsPrefix);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorDisplayName :: R CXCursor_ -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorReferenced :: R CXCursor_ -> W CXCursor_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorDefinition :: R CXCursor_ -> W CXCursor_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_isCursorDefinition :: R CXCursor_ -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCanonicalCursor :: R CXCursor_ -> W CXCursor_ -> IO ()
+
+-- OMITTED: int              clang_Cursor_getObjCSelectorIndex (CXCursor);
+
+-- OMITTED: int              clang_Cursor_isDynamicCall (CXCursor C);
+
+-- OMITTED: CXType           clang_Cursor_getReceiverType (CXCursor C);
+
+-- OMITTED: unsigned         clang_Cursor_getObjCPropertyAttributes (CXCursor C, unsigned reserved);
+
+-- OMITTED: CXString         clang_Cursor_getObjCPropertyGetterName (CXCursor C);
+
+-- OMITTED: CXString         clang_Cursor_getObjCPropertySetterName (CXCursor C);
+
+-- OMITTED: unsigned         clang_Cursor_getObjCDeclQualifiers (CXCursor C);
+
+-- OMITTED: unsigned         clang_Cursor_isObjCOptional (CXCursor C);
+
+-- OMITTED: unsigned         clang_Cursor_isVariadic (CXCursor C);
+
+-- OMITTED: unsigned         clang_Cursor_isExternalSymbol (CXCursor C, CXString * language, CXString * definedIn, unsigned * isGenerated);
+
+-- OMITTED: CXSourceRange    clang_Cursor_getCommentRange (CXCursor C);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getRawCommentText :: R CXCursor_ -> W CXString_ -> IO ()
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_getBriefCommentText :: R CXCursor_ -> W CXString_ -> IO ()
+
+-- *** Token extraction and manipulation ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html>
+
+-- OMITTED: CXToken *        clang_getToken (CXTranslationUnit TU, CXSourceLocation Location);
+
+-- OMITTED: CXTokenKind      clang_getTokenKind (CXToken Token);
+
+-- OMITTED: CXString         clang_getTokenSpelling (CXTranslationUnit TU, CXToken Token);
+
+-- OMITTED: CXSourceLocation clang_getTokenLocation (CXTranslationUnit TU, CXToken Token);
+
+-- OMITTED: CXSourceRange    clang_getTokenExtent (CXTranslationUnit TU, CXToken Token);
+
+-- OMITTED: void             clang_tokenize (CXTranslationUnit TU, CXSourceRange Range, CXToken * * Tokens, unsigned * NumTokens);
+
+-- OMITTED: void             clang_annotateTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens, CXCursor * Cursors);
+
+-- OMITTED: void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens);
+
+-- *** Debugging facilities ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html>
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getCursorKindSpelling :: SimpleEnum CXCursorKind -> W CXString_ -> IO ()
+
+-- OMITTED: void     clang_getDefinitionSpellingAndExtent (CXCursor, const char * * startBuf, const char * * endBuf, unsigned * startLine, unsigned * startColumn, unsigned * endLine, unsigned * endColumn);
+
+-- OMITTED: void     clang_enableStackTraces (void);
+
+-- OMITTED: void     clang_executeOnThread (void(*fn)(void *), void * user_data, unsigned stack_size); // NOTE: function pointer syntax not supported by the clang-bootstrap parser
+
+-- *** Miscellaneous utility functions ***
+
+-- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html>
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getClangVersion :: W CXString_ -> IO ()
+
+-- OMITTED: void               clang_toggleCrashRecovery (unsigned isEnabled);
+
+-- OMITTED: void               clang_getInclusions (CXTranslationUnit tu, CXInclusionVisitor visitor, CXClientData client_data);
+
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_Cursor_Evaluate :: R CXCursor_ -> IO CXEvalResult
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getKind"
+  nowrapper_EvalResult_getKind :: CXEvalResult -> IO (SimpleEnum CXEvalResultKind)
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsInt"
+  nowrapper_EvalResult_getAsInt :: CXEvalResult -> IO CInt
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsLongLong"
+  nowrapper_EvalResult_getAsLongLong :: CXEvalResult -> IO CLLong
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_isUnsignedInt"
+  nowrapper_EvalResult_isUnsignedInt :: CXEvalResult -> IO CUInt
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsUnsigned"
+  nowrapper_EvalResult_getAsUnsigned :: CXEvalResult -> IO CULLong
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsDouble"
+  nowrapper_EvalResult_getAsDouble :: CXEvalResult -> IO CDouble
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsStr"
+  nowrapper_EvalResult_getAsStr :: CXEvalResult -> IO (ConstPtr CChar)
+
+foreign import capi unsafe "clang_wrappers.h clang_EvalResult_dispose"
+  nowrapper_EvalResult_dispose :: CXEvalResult -> IO ()
 
