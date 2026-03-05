@@ -21,7 +21,7 @@ import Clang.Internal.Results
 -- be linked together into an executable or library.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX.html#gae039c2574bfd75774ca7a9a3e55910cb>
-newtype CXIndex = CXIndex (Ptr ())
+newtype {-# CType "CXIndex" #-} CXIndex = CXIndex (Ptr ())
   deriving stock (Show)
 
 {-------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ newtype CXIndex = CXIndex (Ptr ())
 -- | A single translation unit, which resides in an index.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX.html#gacdb7815736ca709ce9a5e1ec2b7e16ac>
-newtype CXTranslationUnit = CXTranslationUnit (Ptr ())
+newtype {-# CType "CXTranslationUnit" #-} CXTranslationUnit = CXTranslationUnit (Ptr ())
   deriving stock (Show)
   deriving newtype (Storable, IsNullPtr)
 
@@ -55,7 +55,7 @@ newtype {-# CType "CXTargetInfo" #-} CXTargetInfo = CXTargetInfo (Ptr ())
 -- NOTE: Equality on 'CXFile' is /pointer/ equality.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#gacfcea9c1239c916597e2e5b3e109215a>
-newtype CXFile = CXFile (Ptr ())
+newtype {-# CType "CXFile" #-} CXFile = CXFile (Ptr ())
   deriving stock (Show, Eq)
   deriving newtype (Storable, IsNullPtr)
 
@@ -63,7 +63,11 @@ newtype CXFile = CXFile (Ptr ())
   CXPrintingPolicy
 -------------------------------------------------------------------------------}
 
-newtype CXPrintingPolicy = CXPrintingPolicy (Ptr ())
+-- | Opaque pointer representing a policy that controls pretty printing for
+-- clang_getCursorPrettyPrinted.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__XREF.html#ga7944a70cf590a5939acfb760df5ed3b6>
+newtype {-# CType "CXPrintingPolicy" #-} CXPrintingPolicy = CXPrintingPolicy (Ptr ())
   deriving stock (Show)
   deriving newtype (Storable)
 
@@ -97,4 +101,4 @@ newtype {-# CType "CXDiagnostic" #-} CXDiagnostic = CXDiagnostic (Ptr ())
 -- | A group of CXDiagnostics.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__DIAG.html#ga38dfc0ae45b55bf7fd577eed9148e244>
-newtype CXDiagnosticSet = CXDiagnosticSet (Ptr ())
+newtype {-# CType "CXDiagnosticSet" #-} CXDiagnosticSet = CXDiagnosticSet (Ptr ())

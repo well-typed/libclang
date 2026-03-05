@@ -13,6 +13,7 @@ import Foreign.C
 import GHC.Ptr (Ptr (..))
 
 import Clang.Internal.ByValue
+import Clang.Internal.ConstPtr (ConstPtr (unConstPtr))
 import Clang.LowLevel.Core.Instances ()
 import Clang.LowLevel.Core.Structs
 import Clang.LowLevel.FFI
@@ -65,7 +66,7 @@ newtype CXString = CXString (OnHaskellHeap CXString_)
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__STRING.html#gabe1284209a3cd35c92e61a31e9459fe7>
 clang_getCString :: CXString -> IO CString
-clang_getCString str = onHaskellHeap str $ wrap_getCString
+clang_getCString str = unConstPtr <$> onHaskellHeap str wrap_getCString
 
 -- | Free the given string.
 --
