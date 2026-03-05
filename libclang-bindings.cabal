@@ -98,6 +98,7 @@ library
     Clang.HighLevel.SourceLoc
     Clang.HighLevel.Tokens
     Clang.HighLevel.Wrappers
+    Clang.Internal.ConstPtr
     Clang.Internal.CXString
     Clang.Internal.FFI
     Clang.Internal.Results

@@ -199,7 +199,9 @@ static inline long long wrap_Type_getSizeOf(const CXType* T) {
   return clang_Type_getSizeOf(*T);
 }
 
-/* long long clang_Type_getOffsetOf (CXType T, const char *S) // TODO: generator doesn't know * yet */
+static inline long long wrap_Type_getOffsetOf(const CXType* T, const char * S) {
+  return clang_Type_getOffsetOf(*T, S);
+}
 
 static inline void wrap_Type_getModifiedType(const CXType* T, CXType* result) {
   *result = clang_Type_getModifiedType(*T);
