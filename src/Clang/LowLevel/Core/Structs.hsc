@@ -17,22 +17,22 @@ import Foreign.Storable
 #include <clang-c/Index.h>
 
 -- | <https://clang.llvm.org/doxygen/structCXCursor.html>
-data CXCursor_
+data {-# CType "CXCursor" #-} CXCursor_
 
 -- | <https://clang.llvm.org/doxygen/structCXSourceLocation.html>
-data CXSourceLocation_
+data {-# CType "CXSourceLocation" #-} CXSourceLocation_
 
 -- | <https://clang.llvm.org/doxygen/structCXSourceRange.html>
-data CXSourceRange_
+data {-# CType "CXSourceRange" #-} CXSourceRange_
 
 -- | <https://clang.llvm.org/doxygen/structCXString.html>
-data CXString_
+data {-# CType "CXString" #-} CXString_
 
 -- | <https://clang.llvm.org/doxygen/structCXToken.html>
-data CXToken_
+data {-# CType "CXToken" #-} CXToken_
 
 -- | <https://clang.llvm.org/doxygen/structCXType.html>
-data CXType_
+data {-# CType "CXType" #-} CXType_
 
 -- | Provides the contents of a file that has not yet been saved to disk.
 --
@@ -40,7 +40,7 @@ data CXType_
 -- with the current contents of that file that have not yet been saved to disk.
 --
 -- <https://clang.llvm.org/doxygen/structCXUnsavedFile.html>
-data CXUnsavedFile = CXUnsavedFile {
+data {-# CType "struct CXUnsavedFile" #-} CXUnsavedFile = CXUnsavedFile {
       cxUnsavedFileFilename :: CString
     , cxUnsavedFileContents :: CString
     , cxUnsavedFileLength   :: CULong
