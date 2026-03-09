@@ -17,10 +17,7 @@ import Foreign.Ptr
 -------------------------------------------------------------------------------}
 
 foreign import capi unsafe "clang-c/Index.h clang_createIndex"
-  nowrapper_clang_createIndex ::
-       CInt -- ^ @excludeDeclarationsFromPCH@
-    -> CInt -- ^ @displayDiagnostics@
-    -> IO CXIndex
+  nowrapper_clang_createIndex :: CInt -> CInt -> IO CXIndex
 
 foreign import capi unsafe "clang-c/Index.h clang_disposeIndex"
   nowrapper_disposeIndex :: CXIndex -> IO ()
@@ -29,22 +26,13 @@ foreign import capi unsafe "clang-c/Index.h clang_getFile"
   nowrapper_getFile :: CXTranslationUnit -> CString -> IO CXFile
 
 foreign import capi unsafe "clang_wrappers.h wrap_getLocation"
-  wrap_getLocation ::
-       CXTranslationUnit
-    -> CXFile
-    -> CUInt
-    -> CUInt
-    -> W CXSourceLocation_
-    -> IO ()
+  wrap_getLocation :: CXTranslationUnit -> CXFile -> CUInt -> CUInt -> W CXSourceLocation_ -> IO ()
 
 foreign import capi unsafe "clang-c/Index.h clang_getNumDiagnostics"
   nowrapper_getNumDiagnostics :: CXTranslationUnit -> IO CUInt
 
 foreign import capi unsafe "clang-c/Index.h clang_getDiagnostic"
-  nowrapper_getDiagnostic ::
-       CXTranslationUnit -- ^ the translation unit to query.
-    -> CUInt             -- ^ the zero-based diagnostic number to retrieve.
-    -> IO CXDiagnostic
+  nowrapper_getDiagnostic :: CXTranslationUnit -> CUInt -> IO CXDiagnostic
 
 {-------------------------------------------------------------------------------
   Diagnostics reporting
@@ -54,10 +42,7 @@ foreign import capi unsafe "clang-c/Index.h clang_getNumDiagnosticsInSet"
   nowrapper_getNumDiagnosticsInSet :: CXDiagnosticSet -> IO CUInt
 
 foreign import capi unsafe "clang-c/Index.h clang_getDiagnosticInSet"
-  nowrapper_getDiagnosticInSet ::
-       CXDiagnosticSet  -- ^ the CXDiagnosticSet to query.
-    -> CUInt            -- ^ the zero-based diagnostic number to retrieve.
-    -> IO CXDiagnostic
+  nowrapper_getDiagnosticInSet :: CXDiagnosticSet -> CUInt -> IO CXDiagnostic
 
 foreign import capi unsafe "clang-c/Index.h clang_disposeDiagnosticSet"
   nowrapper_disposeDiagnosticSet :: CXDiagnosticSet -> IO ()
@@ -69,20 +54,13 @@ foreign import capi unsafe "clang-c/Index.h clang_disposeDiagnostic"
   nowrapper_disposeDiagnostic :: CXDiagnostic -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_formatDiagnostic"
-  wrap_formatDiagnostic ::
-       CXDiagnostic
-    -> BitfieldEnum CXDiagnosticDisplayOptions
-    -> W CXString_
-    -> IO ()
+  wrap_formatDiagnostic :: CXDiagnostic -> BitfieldEnum CXDiagnosticDisplayOptions -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang-c/Index.h clang_defaultDiagnosticDisplayOptions"
-  nowrapper_defaultDiagnosticDisplayOptions ::
-       IO (BitfieldEnum CXDiagnosticDisplayOptions)
+  nowrapper_defaultDiagnosticDisplayOptions :: IO (BitfieldEnum CXDiagnosticDisplayOptions)
 
 foreign import capi unsafe "clang-c/Index.h clang_getDiagnosticSeverity"
-  nowrapper_getDiagnosticSeverity ::
-       CXDiagnostic
-    -> IO (SimpleEnum CXDiagnosticSeverity)
+  nowrapper_getDiagnosticSeverity :: CXDiagnostic -> IO (SimpleEnum CXDiagnosticSeverity)
 
 foreign import capi unsafe "clang_wrappers.h wrap_getDiagnosticLocation"
   wrap_getDiagnosticLocation :: CXDiagnostic -> W CXSourceLocation_ -> IO ()
@@ -91,11 +69,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_getDiagnosticSpelling"
   wrap_getDiagnosticSpelling :: CXDiagnostic -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getDiagnosticOption"
-  wrap_getDiagnosticOption ::
-        CXDiagnostic
-     -> W CXString_
-     -> W CXString_
-     -> IO ()
+  wrap_getDiagnosticOption :: CXDiagnostic -> W CXString_ -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang-c/Index.h clang_getDiagnosticCategory"
   nowrapper_getDiagnosticCategory :: CXDiagnostic -> IO CUInt
@@ -113,12 +87,7 @@ foreign import capi unsafe "clang-c/Index.h clang_getDiagnosticNumFixIts"
   nowrapper_getDiagnosticNumFixIts :: CXDiagnostic -> IO CUInt
 
 foreign import capi unsafe "clang_wrappers.h wrap_getDiagnosticFixIt"
-  wrap_getDiagnosticFixIt ::
-       CXDiagnostic
-    -> CUInt
-    -> W CXSourceRange_
-    -> W CXString_
-    -> IO ()
+  wrap_getDiagnosticFixIt :: CXDiagnostic -> CUInt -> W CXSourceRange_ -> W CXString_ -> IO ()
 
 {-------------------------------------------------------------------------------
   File manipulation routines
@@ -135,94 +104,22 @@ foreign import capi "clang_wrappers.h wrap_Location_isFromMainFile"
   wrap_Location_isFromMainFile :: R CXSourceLocation_ -> IO CInt
 
 foreign import capi unsafe "clang_wrappers.h wrap_getRange"
-  wrap_getRange ::
-       R CXSourceLocation_
-    -> R CXSourceLocation_
-    -> W CXSourceRange_
-    -> IO ()
+  wrap_getRange :: R CXSourceLocation_ -> R CXSourceLocation_ -> W CXSourceRange_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_Range_isNull"
   wrap_Range_isNull :: R CXSourceRange_ -> IO CInt
 
 foreign import capi unsafe "clang_wrappers.h wrap_getExpansionLocation"
-  wrap_getExpansionLocation ::
-       R CXSourceLocation_
-       -- ^ the location within a source file that will be decomposed into its
-       -- parts.
-    -> Ptr CXFile
-       -- ^ [out] if non-NULL, will be set to the file to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the line to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the column to which the given
-       -- source location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the offset into the buffer to
-       -- which the given source location points.
-    -> IO ()
+  wrap_getExpansionLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getPresumedLocation"
-  wrap_getPresumedLocation ::
-       R CXSourceLocation_
-       -- ^ the location within a source file that will be decomposed into its
-       -- parts.
-    -> W CXString_
-       -- ^ [out] if non-NULL, will be set to the filename of the source
-       -- location.
-       --
-       -- Note that filenames returned will be for "virtual" files, which don't
-       -- necessarily exist on the machine running clang - e.g. when parsing
-       -- preprocessed output obtained from a different environment. If a
-       -- non-NULL value is passed in, remember to dispose of the returned value
-       -- using clang_disposeString() once you've finished with it. For an
-       -- invalid source location, an empty string is returned.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the line number of the source
-       -- location. For an invalid source location, zero is returned.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the column number of the source
-       -- location. For an invalid source location, zero is returned.
-    -> IO ()
+  wrap_getPresumedLocation :: R CXSourceLocation_ -> W CXString_ -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getSpellingLocation"
-  wrap_getSpellingLocation ::
-       R CXSourceLocation_
-       -- ^ the location within a source file that will be decomposed into its
-       -- parts.
-    -> Ptr CXFile
-       -- ^ [out] if non-NULL, will be set to the file to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the line to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the column to which the given
-       -- source location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the offset into the buffer to
-       -- which the given source location points.
-    -> IO ()
+  wrap_getSpellingLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getFileLocation"
-  wrap_getFileLocation ::
-       R CXSourceLocation_
-       -- ^ the location within a source file that will be decomposed into its
-       -- parts.
-    -> Ptr CXFile
-       -- ^ [out] if non-NULL, will be set to the file to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the line to which the given source
-       -- location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the column to which the given
-       -- source location points.
-    -> Ptr CUInt
-       -- ^ [out] if non-NULL, will be set to the offset into the buffer to
-       -- which the given source location points.
-    -> IO ()
+  wrap_getFileLocation :: R CXSourceLocation_ -> Ptr CXFile -> Ptr CUInt -> Ptr CUInt -> Ptr CUInt -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getRangeStart"
   wrap_getRangeStart :: R CXSourceRange_ -> W CXSourceLocation_ -> IO ()
@@ -248,27 +145,10 @@ foreign import capi unsafe "clang_wrappers.h wrap_disposeString"
 -- @const char *const *@ type
 -- (see also <https://gitlab.haskell.org/ghc/ghc/-/issues/22043>).
 foreign import ccall unsafe "clang-c/Index.h clang_parseTranslationUnit"
-  nowrapper_parseTranslationUnit ::
-       CXIndex
-    -> CString
-    -> Ptr CString
-    -> CInt
-    -> Ptr CXUnsavedFile
-    -> CUInt
-    -> BitfieldEnum CXTranslationUnit_Flags
-    -> IO CXTranslationUnit
+  nowrapper_parseTranslationUnit :: CXIndex -> CString -> Ptr CString -> CInt -> Ptr CXUnsavedFile -> CUInt -> BitfieldEnum CXTranslationUnit_Flags -> IO CXTranslationUnit
 
 foreign import ccall unsafe "clang-c/Index.h clang_parseTranslationUnit2"
-  nowrapper_parseTranslationUnit2 ::
-       CXIndex
-    -> CString
-    -> Ptr CString
-    -> CInt
-    -> Ptr CXUnsavedFile
-    -> CUInt
-    -> BitfieldEnum CXTranslationUnit_Flags
-    -> Ptr CXTranslationUnit
-    -> IO (SimpleEnum (Maybe CXErrorCode))
+  nowrapper_parseTranslationUnit2 :: CXIndex -> CString -> Ptr CString -> CInt -> Ptr CXUnsavedFile -> CUInt -> BitfieldEnum CXTranslationUnit_Flags -> Ptr CXTranslationUnit -> IO (SimpleEnum (Maybe CXErrorCode))
 
 foreign import capi "clang-c/Index.h clang_disposeTranslationUnit"
   nowrapper_disposeTranslationUnit :: CXTranslationUnit -> IO ()
@@ -546,12 +426,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_getCursorSpelling"
   wrap_getCursorSpelling :: R CXCursor_ -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_Cursor_getSpellingNameRange"
-  wrap_Cursor_getSpellingNameRange ::
-       R CXCursor_
-    -> CUInt
-    -> CUInt
-    -> W CXSourceRange_
-    -> IO ()
+  wrap_Cursor_getSpellingNameRange :: R CXCursor_ -> CUInt -> CUInt -> W CXSourceRange_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getCursorPrintingPolicy :: R CXCursor_ -> IO CXPrintingPolicy
@@ -605,9 +480,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_Cursor_Evaluate"
   wrap_Cursor_Evaluate :: R CXCursor_ -> IO CXEvalResult
 
 foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getKind"
-  nowrapper_EvalResult_getKind ::
-       CXEvalResult
-    -> IO (SimpleEnum CXEvalResultKind)
+  nowrapper_EvalResult_getKind :: CXEvalResult -> IO (SimpleEnum CXEvalResultKind)
 
 foreign import capi unsafe "clang_wrappers.h clang_EvalResult_getAsInt"
   nowrapper_EvalResult_getAsInt :: CXEvalResult -> IO CInt
