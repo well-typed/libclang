@@ -23,7 +23,7 @@ import Text.Read (readMaybe)
 import Clang.Internal.ByValue
 import Clang.Internal.CXString ()
 import Clang.Internal.Results
-import Clang.LowLevel.Core.Structs
+import Clang.LowLevel.FFI
 
 import Version_libclang_bindings qualified
 
@@ -125,9 +125,6 @@ requireClangVersion v =
 {-------------------------------------------------------------------------------
   Low-level
 -------------------------------------------------------------------------------}
-
-foreign import capi "clang_wrappers.h wrap_getClangVersion"
-  wrap_getClangVersion :: W CXString_ -> IO ()
 
 clang_getClangVersion :: MonadIO m => m Text
 clang_getClangVersion = liftIO $ preallocate_ $ wrap_getClangVersion

@@ -15,6 +15,7 @@ import GHC.Ptr (Ptr (..))
 import Clang.Internal.ByValue
 import Clang.LowLevel.Core.Instances ()
 import Clang.LowLevel.Core.Structs
+import Clang.LowLevel.FFI
 
 {-------------------------------------------------------------------------------
   Translation to bytestrings
@@ -55,12 +56,6 @@ instance Preallocate Text where
 -- <https://clang.llvm.org/doxygen/structCXString.html>
 newtype CXString = CXString (OnHaskellHeap CXString_)
   deriving newtype (LivesOnHaskellHeap, Preallocate)
-
-foreign import capi unsafe "clang_wrappers.h wrap_getCString"
-  wrap_getCString :: R CXString_ -> IO CString
-
-foreign import capi unsafe "clang_wrappers.h wrap_disposeString"
-  wrap_disposeString :: R CXString_ -> IO ()
 
 -- | Retrieve the character data associated with the given string.
 --
