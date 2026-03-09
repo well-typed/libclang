@@ -101,6 +101,7 @@ library
     Clang.Internal.ConstPtr
     Clang.Internal.CXString
     Clang.Internal.FFI
+    Clang.Internal.Ptr
     Clang.Internal.Results
     Clang.LowLevel.Core.Enums
     Clang.LowLevel.Core.Instances

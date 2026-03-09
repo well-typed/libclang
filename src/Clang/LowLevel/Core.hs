@@ -240,9 +240,10 @@ import Clang.Args
 import Clang.Enum.Bitfield
 import Clang.Enum.Simple
 import Clang.Internal.ByValue
-import Clang.Internal.ConstPtr (ConstPtr (ConstPtr))
+import Clang.Internal.ConstPtr (ConstPtr (ConstPtr, unConstPtr))
 import Clang.Internal.CXString ()
 import Clang.Internal.FFI
+import Clang.Internal.Ptr (safeCastPtr)
 import Clang.Internal.Results
 import Clang.LowLevel.Core.Enums
 import Clang.LowLevel.Core.Instances ()
@@ -274,7 +275,7 @@ clang_createIndex ::
   => DisplayDiagnostics
   -> m CXIndex
 clang_createIndex diagnostics = liftIO $
-    nowrapper_clang_createIndex 0 diagnostics'
+    nowrapper_createIndex 0 diagnostics'
   where
     diagnostics' :: CInt
     diagnostics' =
@@ -376,7 +377,7 @@ clang_formatDiagnostic ::
   => CXDiagnostic
   -> BitfieldEnum CXDiagnosticDisplayOptions
   -> m Text
-clang_formatDiagnostic diagnostic options = liftIO $
+clang_formatDiagnostic diagnostic (BitfieldEnum options) = liftIO $
     preallocate_ $ wrap_formatDiagnostic diagnostic options
 
 -- | Retrieve the set of display options most similar to the default behavior of
@@ -390,7 +391,7 @@ clang_defaultDiagnosticDisplayOptions ::
      MonadIO m
   => m (BitfieldEnum CXDiagnosticDisplayOptions)
 clang_defaultDiagnosticDisplayOptions = liftIO $
-    nowrapper_defaultDiagnosticDisplayOptions
+    BitfieldEnum <$> nowrapper_defaultDiagnosticDisplayOptions
 
 -- | Determine the severity of the given diagnostic.
 --
@@ -522,15 +523,16 @@ clang_parseTranslationUnit ::
   -> [CXUnsavedFile]                       -- ^ @unsaved_files@
   -> BitfieldEnum CXTranslationUnit_Flags  -- ^ @options@
   -> m CXTranslationUnit
-clang_parseTranslationUnit cIdx src args unsavedFiles options = liftIO $
+clang_parseTranslationUnit cIdx src args unsavedFiles (BitfieldEnum options) =
+    liftIO $
     withOptCString (getSourcePath <$> src) $ \src' ->
       withCStrings (unClangArgs args) $ \args' numArgs ->
         withArrayOrNull unsavedFiles $ \unsavedFiles' numUnsavedFiles ->
           ensureNotNull $
             nowrapper_parseTranslationUnit
               cIdx
-              src'
-              args'
+              (ConstPtr src')
+              (ConstPtr (safeCastPtr args'))
               numArgs
               unsavedFiles'
               (fromIntegral numUnsavedFiles)
@@ -572,15 +574,16 @@ clang_parseTranslationUnit2 ::
      -- ^ Options that affects how the translation unit is managed but not its
      -- compilation.
   -> m (Either (SimpleEnum CXErrorCode) CXTranslationUnit)
-clang_parseTranslationUnit2 cIdx src args unsavedFiles options = liftIO $
+clang_parseTranslationUnit2 cIdx src args unsavedFiles (BitfieldEnum options) =
+    liftIO $
     withOptCString (getSourcePath <$> src) $ \src' ->
       withCStrings (unClangArgs args) $ \args' numArgs ->
         withArrayOrNull unsavedFiles $ \unsavedFiles' numUnsavedFiles ->
           alloca $ \outPtr -> do
             mError <- nowrapper_parseTranslationUnit2
               cIdx
-              src'
-              args'
+              (ConstPtr src')
+              (ConstPtr (safeCastPtr args'))
               numArgs
               unsavedFiles'
               (fromIntegral numUnsavedFiles)
@@ -1579,7 +1582,7 @@ clang_EvalResult_getAsDouble = liftIO . nowrapper_EvalResult_getAsDouble
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html#gae387ea1b7a8c2d54a324161a856b77dd>
 clang_EvalResult_getAsStr :: MonadIO m => CXEvalResult -> m String
-clang_EvalResult_getAsStr = liftIO . (peekCString <=< wrap_EvalResult_getAsStr)
+clang_EvalResult_getAsStr = liftIO . (peekCString . unConstPtr <=< nowrapper_EvalResult_getAsStr)
 
 -- | Disposes the created @Eval@ memory.
 --
@@ -1966,7 +1969,7 @@ clang_getFile ::
   => CXTranslationUnit -> Text -> m CXFile
 clang_getFile unit file = liftIO $ ensureNotNull' $
     withCString (Text.unpack file) $ \file' ->
-      nowrapper_getFile unit file'
+      nowrapper_getFile unit (ConstPtr file')
   where
     ensureNotNull' :: IO CXFile -> IO CXFile
     ensureNotNull' call = do
