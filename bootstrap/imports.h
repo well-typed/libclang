@@ -275,14 +275,14 @@ CXString         clang_Cursor_getBriefCommentText (CXCursor C);
 // *** Token extraction and manipulation ***
 // <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html>
 
-// OMITTED: CXToken *        clang_getToken (CXTranslationUnit TU, CXSourceLocation Location);
-// OMITTED: CXTokenKind      clang_getTokenKind (CXToken Token);
-// OMITTED: CXString         clang_getTokenSpelling (CXTranslationUnit TU, CXToken Token);
-// OMITTED: CXSourceLocation clang_getTokenLocation (CXTranslationUnit TU, CXToken Token);
-// OMITTED: CXSourceRange    clang_getTokenExtent (CXTranslationUnit TU, CXToken Token);
-// OMITTED: void             clang_tokenize (CXTranslationUnit TU, CXSourceRange Range, CXToken * * Tokens, unsigned * NumTokens);
-// OMITTED: void             clang_annotateTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens, CXCursor * Cursors);
-// OMITTED: void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens);
+CXToken *        clang_getToken (CXTranslationUnit TU, CXSourceLocation Location);
+CXTokenKind      clang_getTokenKind (CXToken Token);
+CXString         clang_getTokenSpelling (CXTranslationUnit TU, CXToken Token);
+CXSourceLocation clang_getTokenLocation (CXTranslationUnit TU, CXToken Token);
+CXSourceRange    clang_getTokenExtent (CXTranslationUnit TU, CXToken Token);
+void             clang_tokenize (CXTranslationUnit TU, CXSourceRange Range, CXToken * * Tokens, unsigned * NumTokens);
+void             clang_annotateTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens, CXCursor * Cursors);
+void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens);
 
 // *** Debugging facilities ***
 // <https://clang.llvm.org/doxygen/group__CINDEX__DEBUG.html>

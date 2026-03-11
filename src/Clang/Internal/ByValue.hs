@@ -67,6 +67,21 @@ copyToHaskellHeap src = fmap fst $
   Access
 -------------------------------------------------------------------------------}
 
+-- | A read-only byte array
+--
+-- NOTE: an unlifted ByteArray is passed through the Haskell FFI as a pointer
+-- to the array payload. This means that the following is type-correct:
+--
+-- > void foo (int * x); // C function
+-- > foreign import capi unsafe "foo" foo :: R CInt -> IO () -- Haskell binding
+--
+-- <https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/ffi.html#unlifted-ffi-types>
+--
+-- TODO: a value of type 'R' should not be mutated by a foreign C call, or else
+-- the behaviour is undefined. Can we trust that we are using 'R' only when a
+-- @libclang@ function won't mutate its contents? Should we use a
+-- 'MutableByteArray#' instead, just to be sure?
+type R :: k -> UnliftedType
 newtype R tag = R ByteArray#
 
 -- | Heap-allocated structs
@@ -90,6 +105,16 @@ instance LivesOnHaskellHeap (OnHaskellHeap tag) where
   Preallocation
 -------------------------------------------------------------------------------}
 
+-- | A read-write byte array
+--
+-- NOTE: an unlifted MutableByteArray is passed through the Haskell FFI as a
+-- pointer to the array payload. This means that the following is type-correct:
+--
+-- > void foo (int * x); // C function
+-- > foreign import capi unsafe "foo" foo :: W CInt -> IO () -- Haskell binding
+--
+-- <https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/ffi.html#unlifted-ffi-types>
+type W :: k -> UnliftedType
 newtype W tag = W (MutableByteArray# RealWorld)
 
 -- | Preallocate a buffer

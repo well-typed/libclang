@@ -651,21 +651,29 @@ foreign import capi unsafe "clang_wrappers.h"
 
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html>
 
--- OMITTED: CXToken *        clang_getToken (CXTranslationUnit TU, CXSourceLocation Location);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO (Ptr CXToken_)
 
--- OMITTED: CXTokenKind      clang_getTokenKind (CXToken Token);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTokenKind :: Ptr CXToken_ -> IO (SimpleEnum CXTokenKind)
 
--- OMITTED: CXString         clang_getTokenSpelling (CXTranslationUnit TU, CXToken Token);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTokenSpelling :: CXTranslationUnit -> Ptr CXToken_ -> W CXString_ -> IO ()
 
--- OMITTED: CXSourceLocation clang_getTokenLocation (CXTranslationUnit TU, CXToken Token);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTokenLocation :: CXTranslationUnit -> Ptr CXToken_ -> W CXSourceLocation_ -> IO ()
 
--- OMITTED: CXSourceRange    clang_getTokenExtent (CXTranslationUnit TU, CXToken Token);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTokenExtent :: CXTranslationUnit -> Ptr CXToken_ -> W CXSourceRange_ -> IO ()
 
--- OMITTED: void             clang_tokenize (CXTranslationUnit TU, CXSourceRange Range, CXToken * * Tokens, unsigned * NumTokens);
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_tokenize :: CXTranslationUnit -> R CXSourceRange_ -> Ptr (Ptr CXToken_) -> Ptr CUInt -> IO ()
 
--- OMITTED: void             clang_annotateTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens, CXCursor * Cursors);
+foreign import capi unsafe "clang_wrappers.h clang_annotateTokens"
+  nowrapper_annotateTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> W CXCursor_ -> IO ()
 
--- OMITTED: void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens);
+foreign import capi unsafe "clang_wrappers.h clang_disposeTokens"
+  nowrapper_disposeTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> IO ()
 
 -- *** Debugging facilities ***
 
