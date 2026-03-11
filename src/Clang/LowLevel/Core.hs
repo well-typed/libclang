@@ -1650,10 +1650,10 @@ clang_getCursorExtent cursor = liftIO $
   allocates structs in Haskell memory, so we can't use it for our 'CXToken'
   values. Instead, we store a 'CXToken' in Haskell as a foreign pointer to the
   struct. It's a /foreign/ pointer to emphasise that it is memory that is
-  maintained in C. For @libclang-bindings@ it's fine to store the struct in a
-  pointer rather than as a value because we we never inspect the value of the
-  struct anyway. Note that we /could/ still inspect the struct bytes if we
-  wanted to by reading @'knownSize' \@'CXToken_'@ bytes from the pointer.
+  maintained in C. It's a foreign /pointer/ because the struct type is opaque:
+  we never inspect the value of the struct. Note that we /could/ still inspect
+  the struct bytes for debugging by reading @'knownSize' \@'CXToken_'@ bytes
+  from the pointer.
 -}
 
 newtype CXToken = CXToken (ForeignPtr CXToken_)
