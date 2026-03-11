@@ -13,8 +13,10 @@ import Foreign.C
 import GHC.Ptr (Ptr (..))
 
 import Clang.Internal.ByValue
+import Clang.Internal.ConstPtr (ConstPtr (unConstPtr))
 import Clang.LowLevel.Core.Instances ()
 import Clang.LowLevel.Core.Structs
+import Clang.LowLevel.FFI
 
 {-------------------------------------------------------------------------------
   Translation to bytestrings
@@ -56,12 +58,6 @@ instance Preallocate Text where
 newtype CXString = CXString (OnHaskellHeap CXString_)
   deriving newtype (LivesOnHaskellHeap, Preallocate)
 
-foreign import capi unsafe "clang_wrappers.h wrap_getCString"
-  wrap_getCString :: R CXString_ -> IO CString
-
-foreign import capi unsafe "clang_wrappers.h wrap_disposeString"
-  wrap_disposeString :: R CXString_ -> IO ()
-
 -- | Retrieve the character data associated with the given string.
 --
 -- We use @ccall@ rather than @capi@ here to avoid compiler warning about
@@ -70,7 +66,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_disposeString"
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__STRING.html#gabe1284209a3cd35c92e61a31e9459fe7>
 clang_getCString :: CXString -> IO CString
-clang_getCString str = onHaskellHeap str $ wrap_getCString
+clang_getCString str = unConstPtr <$> onHaskellHeap str wrap_getCString
 
 -- | Free the given string.
 --
