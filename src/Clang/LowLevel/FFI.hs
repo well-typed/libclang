@@ -652,28 +652,28 @@ foreign import capi unsafe "clang_wrappers.h"
 
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html>
 
-foreign import capi unsafe "clang_wrappers.h wrap_getToken"
+foreign import capi unsafe "clang_wrappers.h"
   wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO (Ptr CXToken_)
 
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenKind"
-  nowrapper_getTokenKind :: Ptr CXToken_ -> IO (SimpleEnum CXTokenKind)
+foreign import capi unsafe "clang_wrappers.h"
+  wrap_getTokenKind :: Ptr CXToken_ -> IO (SimpleEnum CXTokenKind)
 
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenSpelling"
+foreign import capi unsafe "clang_wrappers.h"
   wrap_getTokenSpelling :: CXTranslationUnit -> Ptr CXToken_ -> W CXString_ -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenLocation"
+foreign import capi unsafe "clang_wrappers.h"
   wrap_getTokenLocation :: CXTranslationUnit -> Ptr CXToken_ -> W CXSourceLocation_ -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenExtent"
+foreign import capi unsafe "clang_wrappers.h"
   wrap_getTokenExtent :: CXTranslationUnit -> Ptr CXToken_ -> W CXSourceRange_ -> IO ()
 
-foreign import capi unsafe "clang_wrappers.h wrap_tokenize"
+foreign import capi unsafe "clang_wrappers.h"
   wrap_tokenize :: CXTranslationUnit -> R CXSourceRange_ -> Ptr (Ptr CXToken_) -> Ptr CUInt -> IO ()
 
-foreign import capi unsafe "clang-c/Index.h clang_annotateTokens"
+foreign import capi unsafe "clang_wrappers.h clang_annotateTokens"
   nowrapper_annotateTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> W CXCursor_ -> IO ()
 
-foreign import capi unsafe "clang-c/Index.h clang_disposeTokens"
+foreign import capi unsafe "clang_wrappers.h clang_disposeTokens"
   nowrapper_disposeTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> IO ()
 
 -- *** Debugging facilities ***

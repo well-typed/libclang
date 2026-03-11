@@ -1671,7 +1671,7 @@ clang_getToken unit loc = liftIO $ checkNotNull $
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html#ga83f692a67fe4dbeea779f37c0a3b7f20>
 clang_getTokenKind :: MonadIO m => CXToken -> m (SimpleEnum CXTokenKind)
-clang_getTokenKind (CXToken token) = liftIO $ nowrapper_getTokenKind token
+clang_getTokenKind (CXToken token) = liftIO $ wrap_getTokenKind token
 
 -- | Determine the spelling of the given token.
 --

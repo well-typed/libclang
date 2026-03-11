@@ -144,14 +144,14 @@ ffiDecl (FunDecl (Var rtype name) args)
     | isStruct rtype
     =
     [ "foreign import capi unsafe \"clang_wrappers.h" ++ ffiName ++ "\""
-    , "  " ++ name' ++ " :: " ++ foldr argumentTy (toHaskellType Res rtype) args ++ " -> IO ()"
+    , "  " ++ name' ++ " :: " ++ foldr argumentTy (toHaskellType name Res rtype) args ++ " -> IO ()"
     , ""
     ]
 
     | otherwise
     =
     [ "foreign import capi unsafe \"clang_wrappers.h" ++ ffiName ++ "\""
-    , "  " ++ name' ++ " :: " ++ foldr argumentTy (ioType (toHaskellType Res rtype)) args
+    , "  " ++ name' ++ " :: " ++ foldr argumentTy (ioType (toHaskellType name Res rtype)) args
     , ""
     ]
   where
@@ -176,7 +176,7 @@ ffiDecl (FunDecl (Var rtype name) args)
             Just sfx -> "nowrapper_" ++ sfx
 
     argumentTy :: Var -> String -> String
-    argumentTy (Var ty _) rest = toHaskellType Arg ty ++ " -> " ++ rest
+    argumentTy (Var ty _) rest = toHaskellType name Arg ty ++ " -> " ++ rest
 
 ioType :: String -> String
 ioType ty = if any (== ' ') ty then "IO (" ++ ty ++ ")" else "IO " ++ ty
@@ -203,7 +203,7 @@ wrapDecl (Comment comment) =
 wrapDecl (FunDecl (Var rtype rname) args)
     | isStruct rtype
     =
-    [ "static inline void " ++ rname' ++ "(" ++ foldr argumentTy (toCType Res rtype ++ " result") args ++ ") {"
+    [ "static inline void " ++ rname' ++ "(" ++ foldr argumentTy (toCType rname Res rtype ++ " result") args ++ ") {"
     , "  *result = " ++ rname ++ "(" ++ foldr callArg "" args ++ ");"
     , "}"
     , ""
@@ -211,7 +211,7 @@ wrapDecl (FunDecl (Var rtype rname) args)
 
     | any isStructVar args
     =
-    [ "static inline " ++ toCType Res rtype ++ " " ++ rname' ++ "(" ++ foldr argumentTy "" args ++ ") {"
+    [ "static inline " ++ toCType rname Res rtype ++ " " ++ rname' ++ "(" ++ foldr argumentTy "" args ++ ") {"
     , "  return " ++ rname ++ "(" ++ foldr callArg "" args ++ ");"
     , "}"
     , ""
@@ -226,7 +226,7 @@ wrapDecl (FunDecl (Var rtype rname) args)
         Just sfx -> "wrap_" ++ sfx
 
     argumentTy :: Var -> String -> String
-    argumentTy (Var atype aname) rest = commaArg (toCType Arg atype ++ " " ++ aname) rest
+    argumentTy (Var atype aname) rest = commaArg (toCType rname Arg atype ++ " " ++ aname) rest
 
     callArg :: Var -> String -> String
     callArg (Var atype aname) rest
@@ -242,12 +242,12 @@ commaArg x y  = x ++ ", " ++ y
 -------------------------------------------------------------------------------
 
 isStruct :: [String] -> Bool
-isStruct ["CXType"]           = True
-isStruct ["CXString"]         = True
 isStruct ["CXCursor"]         = True
 isStruct ["CXSourceLocation"] = True
 isStruct ["CXSourceRange"]    = True
+isStruct ["CXString"]         = True
 isStruct ["CXToken"]          = True
+isStruct ["CXType"]           = True
 isStruct _                    = False
 
 isStructVar :: Var -> Bool
@@ -260,98 +260,118 @@ haskellRA :: RA -> String
 haskellRA Res = "W "
 haskellRA Arg = "R "
 
-toHaskellType :: RA -> [String] -> String
+toHaskellType ::
+     String -- ^ Function name
+  -> RA
+  -> [String]
+  -> String
 -- basic types
-toHaskellType _   ["const", "char", "*"]               = "ConstPtr CChar"
-toHaskellType _   ["const", "char", "*", "const", "*"] = "ConstPtr (ConstPtr CChar)"
-toHaskellType _   ["double"]                           = "CDouble"
-toHaskellType _   ["int"]                              = "CInt"
-toHaskellType _   ["long","long"]                      = "CLLong"
-toHaskellType _   ["unsigned"]                         = "CUInt"
-toHaskellType _   ["unsigned", "*"]                    = "Ptr CUInt"
-toHaskellType _   ["unsigned","long","long"]           = "CULLong"
-toHaskellType _   ["size_t", "*"]                      = "Ptr CSize"
-toHaskellType Res ["void"]                             = "()"
+toHaskellType _ _   ["const", "char", "*"]               = "ConstPtr CChar"
+toHaskellType _ _   ["const", "char", "*", "const", "*"] = "ConstPtr (ConstPtr CChar)"
+toHaskellType _ _   ["double"]                           = "CDouble"
+toHaskellType _ _   ["int"]                              = "CInt"
+toHaskellType _ _   ["long","long"]                      = "CLLong"
+toHaskellType _ _   ["unsigned"]                         = "CUInt"
+toHaskellType _ _   ["unsigned", "*"]                    = "Ptr CUInt"
+toHaskellType _ _   ["unsigned","long","long"]           = "CULLong"
+toHaskellType _ _   ["size_t", "*"]                      = "Ptr CSize"
+toHaskellType _ Res ["void"]                             = "()"
 -- structs
-toHaskellType ra  [          "CXCursor"]           = haskellRA ra ++ "CXCursor_"
-toHaskellType ra  [          "CXSourceLocation"]   = haskellRA ra ++ "CXSourceLocation_"
-toHaskellType ra  [          "CXSourceRange"]      = haskellRA ra ++ "CXSourceRange_"
-toHaskellType Arg [          "CXSourceRange", "*"] = "W CXSourceRange_"
-toHaskellType ra  [          "CXString"]           = haskellRA ra ++ "CXString_"
-toHaskellType Arg [          "CXString", "*"]      = "W CXString_"
-toHaskellType ra  [          "CXType"]             = haskellRA ra ++ "CXType_"
-toHaskellType _   ["struct", "CXUnsavedFile", "*"] = "Ptr CXUnsavedFile"
+toHaskellType _ ra  [          "CXCursor"]           = haskellRA ra ++ "CXCursor_"
+toHaskellType "clang_annotateTokens"
+                Arg [          "CXCursor", "*"]      = "W CXCursor_"
+toHaskellType _ ra  [          "CXSourceLocation"]   = haskellRA ra ++ "CXSourceLocation_"
+toHaskellType _ ra  [          "CXSourceRange"]      = haskellRA ra ++ "CXSourceRange_"
+toHaskellType _ Arg [          "CXSourceRange", "*"] = "W CXSourceRange_"
+toHaskellType _ ra  [          "CXString"]           = haskellRA ra ++ "CXString_"
+toHaskellType _ Arg [          "CXString", "*"]      = "W CXString_"
+toHaskellType _ _   [          "CXToken"]            = "Ptr CXToken_"
+toHaskellType _ _   [          "CXToken", "*"]       = "Ptr CXToken_"
+toHaskellType _ Arg [          "CXToken", "*", "*"]  = "Ptr (Ptr CXToken_)"
+toHaskellType _ ra  [          "CXType"]             = haskellRA ra ++ "CXType_"
+toHaskellType _ _   ["struct", "CXUnsavedFile", "*"] = "Ptr CXUnsavedFile"
 -- typedefs
-toHaskellType _  ["CXDiagnostic"]           = "CXDiagnostic"
-toHaskellType _  ["CXDiagnosticSet"]        = "CXDiagnosticSet"
-toHaskellType _  ["CXEvalResult"]           = "CXEvalResult"
-toHaskellType _  ["CXFile"]                 = "CXFile"
-toHaskellType _  ["CXFile", "*"]            = "Ptr CXFile"
-toHaskellType _  ["CXIndex"]                = "CXIndex"
-toHaskellType _  ["CXPrintingPolicy"]       = "CXPrintingPolicy"
-toHaskellType _  ["CXTargetInfo"]           = "CXTargetInfo"
-toHaskellType _  ["CXTranslationUnit"]      = "CXTranslationUnit"
-toHaskellType _  ["CXTranslationUnit", "*"] = "Ptr CXTranslationUnit"
+toHaskellType _ _  ["CXDiagnostic"]           = "CXDiagnostic"
+toHaskellType _ _  ["CXDiagnosticSet"]        = "CXDiagnosticSet"
+toHaskellType _ _  ["CXEvalResult"]           = "CXEvalResult"
+toHaskellType _ _  ["CXFile"]                 = "CXFile"
+toHaskellType _ _  ["CXFile", "*"]            = "Ptr CXFile"
+toHaskellType _ _  ["CXIndex"]                = "CXIndex"
+toHaskellType _ _  ["CXPrintingPolicy"]       = "CXPrintingPolicy"
+toHaskellType _ _  ["CXTargetInfo"]           = "CXTargetInfo"
+toHaskellType _ _  ["CXTranslationUnit"]      = "CXTranslationUnit"
+toHaskellType _ _  ["CXTranslationUnit", "*"] = "Ptr CXTranslationUnit"
 -- enums
-toHaskellType _  [        "CXEvalResultKind"]     = "SimpleEnum CXEvalResultKind"
-toHaskellType _  ["enum", "CXAvailabilityKind"]   = "SimpleEnum CXAvailabilityKind"
-toHaskellType _  ["enum", "CXCursorKind"]         = "SimpleEnum CXCursorKind"
-toHaskellType _  ["enum", "CXDiagnosticSeverity"] = "SimpleEnum CXDiagnosticSeverity"
-toHaskellType _  ["enum", "CXErrorCode"]          = "SimpleEnum (Maybe CXErrorCode)"
-toHaskellType _  ["enum", "CXLinkageKind"]        = "SimpleEnum CXLinkageKind"
-toHaskellType _  ["enum", "CXTLSKind"]            = "SimpleEnum CXTLSKind"
-toHaskellType _  ["enum", "CXTypeKind"]           = "SimpleEnum CXTypeKind"
-toHaskellType _  ["enum", "CXVisibilityKind"]     = "SimpleEnum CXVisibilityKind"
-toHaskellType _  ["enum", "CX_StorageClass" ]     = "SimpleEnum CX_StorageClass"
+toHaskellType _ _  [        "CXEvalResultKind"]     = "SimpleEnum CXEvalResultKind"
+toHaskellType _ _  ["enum", "CXAvailabilityKind"]   = "SimpleEnum CXAvailabilityKind"
+toHaskellType _ _  ["enum", "CXCursorKind"]         = "SimpleEnum CXCursorKind"
+toHaskellType _ _  ["enum", "CXDiagnosticSeverity"] = "SimpleEnum CXDiagnosticSeverity"
+toHaskellType _ _  ["enum", "CXErrorCode"]          = "SimpleEnum (Maybe CXErrorCode)"
+toHaskellType _ _  ["enum", "CXLinkageKind"]        = "SimpleEnum CXLinkageKind"
+toHaskellType _ _  ["enum", "CXTLSKind"]            = "SimpleEnum CXTLSKind"
+toHaskellType _ _  [        "CXTokenKind"]          = "SimpleEnum CXTokenKind"
+toHaskellType _ _  ["enum", "CXTypeKind"]           = "SimpleEnum CXTypeKind"
+toHaskellType _ _  ["enum", "CXVisibilityKind"]     = "SimpleEnum CXVisibilityKind"
+toHaskellType _ _  ["enum", "CX_StorageClass" ]     = "SimpleEnum CX_StorageClass"
 -- other
-toHaskellType _ ty                          = error $ "Unknown type " ++ unwords ty
+toHaskellType _ _ ty                          = error $ "Unknown type " ++ unwords ty
 
 cRA :: RA -> String
 cRA Res = ""
 cRA Arg = "const "
 
-toCType :: RA -> [String] -> String
+toCType ::
+     String -- ^ Function name
+  -> RA
+  -> [String]
+  -> String
 -- basic types
-toCType _   ["const", "char", "*"]               = "const char *"
-toCType _   ["const", "char", "*", "const", "*"] = "const char * const *"
-toCType _   ["double"]                           = "double"
-toCType _   ["int"]                              = "int"
-toCType _   ["long","long"]                      = "long long"
-toCType _   ["unsigned"]                         = "unsigned"
-toCType _   ["unsigned", "*"]                    = "unsigned *"
-toCType _   ["unsigned","long","long"]           = "unsigned long long"
-toCType _   ["size_t", "*"]                      = "size_t *"
-toCType Res ["void"]                             = "void"
+toCType _  _   ["const", "char", "*"]               = "const char *"
+toCType _  _   ["const", "char", "*", "const", "*"] = "const char * const *"
+toCType _  _   ["double"]                           = "double"
+toCType _  _   ["int"]                              = "int"
+toCType _  _   ["long","long"]                      = "long long"
+toCType _  _   ["unsigned"]                         = "unsigned"
+toCType _  _   ["unsigned", "*"]                    = "unsigned *"
+toCType _  _   ["unsigned","long","long"]           = "unsigned long long"
+toCType _  _   ["size_t", "*"]                      = "size_t *"
+toCType _  Res ["void"]                             = "void"
 -- structs
-toCType ra  [          "CXCursor"]           = cRA ra ++ "CXCursor *"
-toCType ra  [          "CXSourceLocation"]   = cRA ra ++ "CXSourceLocation *"
-toCType ra  [          "CXSourceRange"]      = cRA ra ++ "CXSourceRange *"
-toCType Arg [          "CXSourceRange", "*"] = "CXSourceRange *"
-toCType ra  [          "CXString"]           = cRA ra ++ "CXString *"
-toCType Arg [          "CXString", "*"]      = "CXString *"
-toCType ra  [          "CXType"]             = cRA ra ++ "CXType *"
-toCType _   ["struct", "CXUnsavedFile", "*"] = "struct CXUnsavedFile *"
+toCType _  ra  [          "CXCursor"]           = cRA ra ++ "CXCursor *"
+toCType "clang_annotateTokens"
+           Arg [          "CXCursor", "*"]      = "CXCursor *"
+toCType _  ra  [          "CXSourceLocation"]   = cRA ra ++ "CXSourceLocation *"
+toCType _  ra  [          "CXSourceRange"]      = cRA ra ++ "CXSourceRange *"
+toCType _  Arg [          "CXSourceRange", "*"] = "CXSourceRange *"
+toCType _  ra  [          "CXString"]           = cRA ra ++ "CXString *"
+toCType _  Arg [          "CXString", "*"]      = "CXString *"
+toCType _  ra  [          "CXToken"]            = cRA ra ++ "CXToken *"
+toCType _  _   [          "CXToken", "*"]       = "CXToken *"
+toCType _  Arg [          "CXToken", "*", "*"]  = "CXToken * *"
+toCType _  ra  [          "CXType"]             = cRA ra ++ "CXType *"
+toCType _  _   ["struct", "CXUnsavedFile", "*"] = "struct CXUnsavedFile *"
 -- typedefs
-toCType _  ["CXDiagnostic"]           = "CXDiagnostic"
-toCType _  ["CXDiagnosticSet"]        = "CXDiagnosticSet"
-toCType _  ["CXEvalResult"]           = "CXEvalResult"
-toCType _  ["CXFile"]                 = "CXFile"
-toCType _  ["CXFile", "*"]            = "CXFile *"
-toCType _  ["CXIndex"]                = "CXIndex"
-toCType _  ["CXPrintingPolicy"]       = "CXPrintingPolicy"
-toCType _  ["CXTargetInfo"]           = "CXTargetInfo"
-toCType _  ["CXTranslationUnit"]      = "CXTranslationUnit"
-toCType _  ["CXTranslationUnit", "*"] = "CXTranslationUnit *"
+toCType _  _  ["CXDiagnostic"]           = "CXDiagnostic"
+toCType _  _  ["CXDiagnosticSet"]        = "CXDiagnosticSet"
+toCType _  _  ["CXEvalResult"]           = "CXEvalResult"
+toCType _  _  ["CXFile"]                 = "CXFile"
+toCType _  _  ["CXFile", "*"]            = "CXFile *"
+toCType _  _  ["CXIndex"]                = "CXIndex"
+toCType _  _  ["CXPrintingPolicy"]       = "CXPrintingPolicy"
+toCType _  _  ["CXTargetInfo"]           = "CXTargetInfo"
+toCType _  _  ["CXTranslationUnit"]      = "CXTranslationUnit"
+toCType _  _  ["CXTranslationUnit", "*"] = "CXTranslationUnit *"
 -- enums
-toCType _  [        "CXEvalResultKind"]     = "CXEvalResultKind"
-toCType _  ["enum", "CXAvailabilityKind"]   = "enum CXAvailabilityKind"
-toCType _  ["enum", "CXCursorKind"]         = "enum CXCursorKind"
-toCType _  ["enum", "CXDiagnosticSeverity"] = "enum CXDiagnosticSeverity"
-toCType _  ["enum", "CXErrorCode"]          = "enum CXErrorCode"
-toCType _  ["enum", "CXLinkageKind"]        = "enum CXLinkageKind"
-toCType _  ["enum", "CXTLSKind"]            = "enum CXTLSKind"
-toCType _  ["enum", "CXTypeKind"]           = "enum CXTypeKind"
-toCType _  ["enum", "CXVisibilityKind"]     = "enum CXVisibilityKind"
-toCType _  ["enum", "CX_StorageClass"]      = "enum CX_StorageClass"
+toCType _  _  [        "CXEvalResultKind"]     = "CXEvalResultKind"
+toCType _  _  ["enum", "CXAvailabilityKind"]   = "enum CXAvailabilityKind"
+toCType _  _  ["enum", "CXCursorKind"]         = "enum CXCursorKind"
+toCType _  _  ["enum", "CXDiagnosticSeverity"] = "enum CXDiagnosticSeverity"
+toCType _  _  ["enum", "CXErrorCode"]          = "enum CXErrorCode"
+toCType _  _  ["enum", "CXLinkageKind"]        = "enum CXLinkageKind"
+toCType _  _  ["enum", "CXTLSKind"]            = "enum CXTLSKind"
+toCType _  _  [        "CXTokenKind"]          = "CXTokenKind"
+toCType _  _  ["enum", "CXTypeKind"]           = "enum CXTypeKind"
+toCType _  _  ["enum", "CXVisibilityKind"]     = "enum CXVisibilityKind"
+toCType _  _  ["enum", "CX_StorageClass"]      = "enum CX_StorageClass"
 -- other
-toCType _ ty                          = error $ "Unknown type " ++ unwords ty
+toCType _  _ ty                          = error $ "Unknown type " ++ unwords ty

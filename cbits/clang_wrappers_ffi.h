@@ -651,21 +651,29 @@ static inline void wrap_Cursor_getBriefCommentText(const CXCursor * C, CXString 
 
 /* <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html> */
 
-/* OMITTED: CXToken *        clang_getToken (CXTranslationUnit TU, CXSourceLocation Location); */
+static inline CXToken * wrap_getToken(CXTranslationUnit TU, const CXSourceLocation * Location) {
+  return clang_getToken(TU, *Location);
+}
 
-/* OMITTED: CXTokenKind      clang_getTokenKind (CXToken Token); */
+static inline CXTokenKind wrap_getTokenKind(const CXToken * Token) {
+  return clang_getTokenKind(*Token);
+}
 
-/* OMITTED: CXString         clang_getTokenSpelling (CXTranslationUnit TU, CXToken Token); */
+static inline void wrap_getTokenSpelling(CXTranslationUnit TU, const CXToken * Token, CXString * result) {
+  *result = clang_getTokenSpelling(TU, *Token);
+}
 
-/* OMITTED: CXSourceLocation clang_getTokenLocation (CXTranslationUnit TU, CXToken Token); */
+static inline void wrap_getTokenLocation(CXTranslationUnit TU, const CXToken * Token, CXSourceLocation * result) {
+  *result = clang_getTokenLocation(TU, *Token);
+}
 
-/* OMITTED: CXSourceRange    clang_getTokenExtent (CXTranslationUnit TU, CXToken Token); */
+static inline void wrap_getTokenExtent(CXTranslationUnit TU, const CXToken * Token, CXSourceRange * result) {
+  *result = clang_getTokenExtent(TU, *Token);
+}
 
-/* OMITTED: void             clang_tokenize (CXTranslationUnit TU, CXSourceRange Range, CXToken * * Tokens, unsigned * NumTokens); */
-
-/* OMITTED: void             clang_annotateTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens, CXCursor * Cursors); */
-
-/* OMITTED: void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, unsigned NumTokens); */
+static inline void wrap_tokenize(CXTranslationUnit TU, const CXSourceRange * Range, CXToken * * Tokens, unsigned * NumTokens) {
+  return clang_tokenize(TU, *Range, Tokens, NumTokens);
+}
 
 /* *** Debugging facilities *** */
 
