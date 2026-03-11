@@ -67,34 +67,6 @@ static inline void wrap_getUnqualifiedType(const CXType* CT, CXType* result) {
 }
 
 /**
- * Token extraction and manipulation
- */
-
-static inline CXToken* wrap_getToken(CXTranslationUnit TU, const CXSourceLocation* Location) {
-    return clang_getToken(TU, *Location);
-}
-
-static inline CXTokenKind wrap_getTokenKind(CXToken* Token) {
-    return clang_getTokenKind(*Token);
-}
-
-static inline void wrap_getTokenSpelling(CXTranslationUnit TU, CXToken* Token, CXString* result) {
-    *result = clang_getTokenSpelling(TU, *Token);
-}
-
-static inline void wrap_getTokenLocation(CXTranslationUnit TU, CXToken* Token, CXSourceLocation* result) {
-    *result = clang_getTokenLocation(TU, *Token);
-}
-
-static inline void wrap_getTokenExtent(CXTranslationUnit TU, CXToken* Token, CXSourceRange* result) {
-    *result = clang_getTokenExtent(TU, *Token);
-}
-
-static inline void wrap_tokenize(CXTranslationUnit TU, const CXSourceRange* Range, CXToken** Tokens, unsigned* NumTokens) {
-    clang_tokenize(TU, *Range, Tokens, NumTokens);
-}
-
-/**
  * Debugging
  */
 

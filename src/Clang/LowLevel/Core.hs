@@ -1689,7 +1689,7 @@ clang_getToken unit loc = liftIO $
 clang_getTokenKind :: MonadIO m => CXToken -> m (SimpleEnum CXTokenKind)
 clang_getTokenKind token = liftIO $
     withCXTokenPtr token $ \tokenPtr ->
-      nowrapper_getTokenKind tokenPtr
+      wrap_getTokenKind tokenPtr
 
 -- | Determine the spelling of the given token.
 --
