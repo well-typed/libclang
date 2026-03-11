@@ -1641,30 +1641,56 @@ clang_getCursorExtent cursor = liftIO $
   <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html>
 -------------------------------------------------------------------------------}
 
-newtype CXToken = CXToken (Ptr ())
+{- Note [CXToken representation]
+
+  Values of the 'CXToken' struct are exclusively allocated by @libclang@ and the
+  memory is maintained in C. The usual machinery for dealing with structs (by
+  value) is defined in the "Clang.Internal.ByValue" module. This machinery
+  allocates structs in Haskell memory, so we can't use it for our 'CXToken'
+  values. Instead, we store a 'CXToken' in Haskell as a foreign pointer to the
+  struct. It's a /foreign/ pointer to emphasise that it is memory that is
+  maintained in C. For @libclang-bindings@ it's fine to store the struct in a
+  pointer rather than as a value because we we never inspect the value of the
+  struct anyway. Note that we /could/ still inspect the struct bytes if we
+  wanted to by reading @'knownSize' \@'CXToken_'@ bytes from the pointer.
+-}
+
+newtype CXToken = CXToken (ForeignPtr CXToken_)
   deriving stock (Show)
-  deriving newtype (IsNullPtr)
+
+-- | Create a 'CXToken' from a pointer to the C struct of the same name.
+--
+-- TODO: we could add a 'disposeTokens' finalizer so that we don't leak the
+-- 'CXToken'. If we do, then we should also think about using proper masking to
+-- ensure that the program can't be interrupted in between allocating the struct
+-- on the C side, and creating the foreign pointer with finalizer on the Haskell
+-- side.
+newCXToken :: Ptr CXToken_ -> IO CXToken
+newCXToken = fmap CXToken . newForeignPtr_
+
+withCXTokenPtr :: CXToken -> (Ptr CXToken_ -> IO a) -> IO a
+withCXTokenPtr (CXToken fptr) = withForeignPtr fptr
 
 foreign import capi unsafe "clang_wrappers.h wrap_getToken"
-  wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO CXToken
+  wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO (Ptr CXToken_)
 
 foreign import capi unsafe "clang_wrappers.h wrap_getTokenKind"
-  nowrapper_getTokenKind :: CXToken -> IO (SimpleEnum CXTokenKind)
+  nowrapper_getTokenKind :: Ptr CXToken_ -> IO (SimpleEnum CXTokenKind)
 
 foreign import capi unsafe "clang_wrappers.h wrap_getTokenSpelling"
-  wrap_getTokenSpelling :: CXTranslationUnit -> CXToken -> W CXString_ -> IO ()
+  wrap_getTokenSpelling :: CXTranslationUnit -> Ptr CXToken_ -> W CXString_ -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getTokenLocation"
   wrap_getTokenLocation ::
        CXTranslationUnit
-    -> CXToken
+    -> Ptr CXToken_
     -> W CXSourceLocation_
     -> IO ()
 
 foreign import capi unsafe "clang_wrappers.h wrap_getTokenExtent"
   wrap_getTokenExtent ::
        CXTranslationUnit
-    -> CXToken
+    -> Ptr CXToken_
     -> W CXSourceRange_
     -> IO ()
 
@@ -1674,22 +1700,26 @@ foreign import capi unsafe "clang_wrappers.h wrap_getTokenExtent"
 clang_getToken ::
      MonadIO m
   => CXTranslationUnit -> CXSourceLocation -> m (Maybe CXToken)
-clang_getToken unit loc = liftIO $ checkNotNull $
-    onHaskellHeap loc $ \loc' ->
-      wrap_getToken unit loc'
+clang_getToken unit loc = liftIO $
+    onHaskellHeap loc $ \loc' -> do
+      ptrMay <- checkNotNull $ wrap_getToken unit loc'
+      mapM newCXToken ptrMay
 
 -- | Determine the kind of the given token.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html#ga83f692a67fe4dbeea779f37c0a3b7f20>
 clang_getTokenKind :: MonadIO m => CXToken -> m (SimpleEnum CXTokenKind)
-clang_getTokenKind token = liftIO $ nowrapper_getTokenKind token
+clang_getTokenKind token = liftIO $
+    withCXTokenPtr token $ \tokenPtr ->
+      nowrapper_getTokenKind tokenPtr
 
 -- | Determine the spelling of the given token.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html#ga1033a25c9d2c59bcbdb23020de0bba2c>
 clang_getTokenSpelling :: MonadIO m => CXTranslationUnit -> CXToken -> m Text
 clang_getTokenSpelling unit token = liftIO $
-    preallocate_ $ wrap_getTokenSpelling unit token
+    withCXTokenPtr token $ \tokenPtr ->
+      preallocate_ $ wrap_getTokenSpelling unit tokenPtr
 
 -- | Retrieve the source location of the given token.
 --
@@ -1698,7 +1728,8 @@ clang_getTokenLocation ::
      MonadIO m
   => CXTranslationUnit -> CXToken -> m CXSourceLocation
 clang_getTokenLocation unit token = liftIO $
-    preallocate_ $ wrap_getTokenLocation unit token
+    withCXTokenPtr token $ \tokenPtr ->
+    preallocate_ $ wrap_getTokenLocation unit tokenPtr
 
 -- | Retrieve a source range that covers the given token.
 --
@@ -1707,10 +1738,23 @@ clang_getTokenExtent ::
      MonadIO m
   => CXTranslationUnit -> CXToken -> m CXSourceRange
 clang_getTokenExtent unit token = liftIO $
-    preallocate_ $ wrap_getTokenExtent unit token
+    withCXTokenPtr token $ \tokenPtr ->
+    preallocate_ $ wrap_getTokenExtent unit tokenPtr
 
-newtype CXTokenArray = CXTokenArray (Ptr ())
-  deriving newtype (Storable)
+newtype CXTokenArray = CXTokenArray (ForeignPtr CXToken_)
+
+-- | Create a 'CXTokenArray' from an array of 'CXToken' C structs.
+--
+-- TODO: we could add a 'disposeTokens' finalizer so that we don't leak the
+-- 'CXTokenArray'. If we do, then we should also think about using proper
+-- masking to ensure that the program can't be interrupted in between allocating
+-- the array on the C side, and creating the foreign pointer with finalizer on
+-- the Haskell side.
+newCXTokenArray :: Ptr CXToken_ -> IO CXTokenArray
+newCXTokenArray = fmap CXTokenArray . newForeignPtr_
+
+withCXTokenArrayPtr :: CXTokenArray -> (Ptr CXToken_ -> IO a) -> IO a
+withCXTokenArrayPtr (CXTokenArray fptr) = withForeignPtr fptr
 
 foreign import capi unsafe "clang_wrappers.h wrap_tokenize"
   wrap_tokenize ::
@@ -1719,7 +1763,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_tokenize"
     -> R CXSourceRange_
        -- ^ the source range in which text should be tokenized. All of the
        -- tokens produced by tokenization will fall within this source range
-    -> Ptr CXTokenArray
+    -> Ptr (Ptr CXToken_)
        -- ^ this pointer will be set to point to the array of tokens that occur
        -- within the given source range. The returned pointer must be freed with
        -- clang_disposeTokens() before the translation unit is destroyed.
@@ -1728,7 +1772,7 @@ foreign import capi unsafe "clang_wrappers.h wrap_tokenize"
     -> IO ()
 
 foreign import capi unsafe "clang-c/Index.h clang_disposeTokens"
-  nowrapper_disposeTokens :: CXTranslationUnit -> CXTokenArray -> CUInt -> IO ()
+  nowrapper_disposeTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> IO ()
 
 -- | Tokenize the source code described by the given range into raw lexical
 -- tokens.
@@ -1746,7 +1790,7 @@ clang_tokenize unit range = liftIO $
       alloca $ \array ->
       alloca $ \numTokens -> do
         wrap_tokenize unit range' array numTokens
-        (,) <$> peek array <*> peek numTokens
+        (,) <$> (newCXTokenArray =<< peek array) <*> peek numTokens
 
 -- | Free the given set of tokens.
 --
@@ -1755,14 +1799,15 @@ clang_disposeTokens ::
      MonadIO m
   => CXTranslationUnit -> CXTokenArray -> CUInt -> m ()
 clang_disposeTokens unit tokens numTokens = liftIO $
-    nowrapper_disposeTokens unit tokens numTokens
+    withCXTokenArrayPtr tokens $ \tokensPtr ->
+    nowrapper_disposeTokens unit tokensPtr numTokens
 
 -- | Index token array
 --
 -- We do not verify bounds (nor that the array has not already been disposed).
 index_CXTokenArray :: CXTokenArray -> CUInt -> CXToken
 index_CXTokenArray (CXTokenArray array) i = CXToken $
-    array `plusPtr` (fromIntegral i * knownSize @CXToken_)
+    array `plusForeignPtr` (fromIntegral i * knownSize @CXToken_)
 
 newtype CXCursorArray = CXCursorArray (ArrOnHaskellHeap CXCursor_)
 
@@ -1770,7 +1815,7 @@ foreign import capi unsafe "clang-c/Index.h clang_annotateTokens"
   nowrapper_annotateTokens ::
        CXTranslationUnit
        -- ^ the translation unit that owns the given tokens.
-    -> CXTokenArray
+    -> Ptr CXToken_
        -- ^ the set of tokens to annotate.
     -> CUInt
        -- ^ the number of tokens in Tokens.
@@ -1787,7 +1832,8 @@ clang_annotateTokens ::
   -> m CXCursorArray
 clang_annotateTokens unit tokens numTokens = liftIO $ fmap CXCursorArray $
     preallocateArray (fromIntegral numTokens) $ \arr ->
-      nowrapper_annotateTokens unit tokens numTokens arr
+    withCXTokenArrayPtr tokens $ \tokensPtr ->
+      nowrapper_annotateTokens unit tokensPtr numTokens arr
 
 index_CXCursorArray :: MonadIO m => CXCursorArray -> CUInt -> m CXCursor
 index_CXCursorArray (CXCursorArray arr) i = liftIO $
