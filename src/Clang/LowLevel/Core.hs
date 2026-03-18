@@ -229,7 +229,7 @@ module Clang.LowLevel.Core (
 import Control.Exception
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.ByteString qualified as ByteString
+import Data.ByteString.Unsafe qualified as ByteString
 import Data.IORef
 import Data.Text (Text)
 import Data.Text qualified as Text
@@ -2024,7 +2024,7 @@ clang_getFileContents unit file = liftIO $
         size <- peek sizePtr
         -- Go via ByteString to avoid the intermediate [Char] linked list
         -- that peekCStringLen + Text.pack would allocate.
-        bs <- ByteString.packCStringLen (ptr, fromIntegral size)
+        bs <- ByteString.unsafePackCStringLen (ptr, fromIntegral size)
         pure . Just $ Text.Encoding.decodeUtf8 bs
 
 {-------------------------------------------------------------------------------
