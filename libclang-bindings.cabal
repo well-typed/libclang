@@ -117,6 +117,7 @@ library
 
   -- External dependencies
   build-depends:
+    , bytestring     >=0.11  && <0.13
     , data-default   >=0.7   && <0.9
     , exceptions     >=0.10  && <0.11
     , text           >=1.2   && <2.2
