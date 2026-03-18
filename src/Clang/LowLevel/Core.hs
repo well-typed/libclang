@@ -53,6 +53,7 @@ module Clang.LowLevel.Core (
   , clang_disposeIndex
   , clang_getNumDiagnostics
   , clang_getDiagnostic
+  , clang_getFileContents
     -- * Diagnostic reporting
   , CXDiagnostic
   , CXDiagnosticSet
@@ -228,9 +229,11 @@ module Clang.LowLevel.Core (
 import Control.Exception
 import Control.Monad
 import Control.Monad.IO.Class
+import Data.ByteString.Unsafe qualified as ByteString
 import Data.IORef
 import Data.Text (Text)
 import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text.Encoding
 import Foreign
 import Foreign.C
 import GHC.Stack
@@ -2001,6 +2004,28 @@ clang_Location_isFromMainFile location = liftIO $
 -- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga626ff6335ab1e0a2b8c8823301225690>
 clang_getFileName :: MonadIO m => CXFile -> m Text
 clang_getFileName file = liftIO $ preallocate_$ wrap_getFileName file
+
+-- | Retrieve the contents of the given file that is loaded in the given
+-- translation unit.
+--
+-- Returns 'Nothing' if the file is not loaded.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX.html#ga66e2b8da5d762063c3ff3f44bf1071a7>
+clang_getFileContents ::
+     MonadIO m
+  => CXTranslationUnit -> CXFile -> m (Maybe Text)
+clang_getFileContents unit file = liftIO $
+    alloca $ \sizePtr -> do
+      cptr <- nowrapper_getFileContents unit file sizePtr
+      let ptr = unConstPtr cptr
+      if ptr == nullPtr then
+        pure Nothing
+      else do
+        size <- peek sizePtr
+        -- Go via ByteString to avoid the intermediate [Char] linked list
+        -- that peekCStringLen + Text.pack would allocate.
+        bs <- ByteString.unsafePackCStringLen (ptr, fromIntegral size)
+        pure . Just $ Text.Encoding.decodeUtf8 bs
 
 {-------------------------------------------------------------------------------
   Debugging
