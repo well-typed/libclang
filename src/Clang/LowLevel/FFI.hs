@@ -33,8 +33,8 @@ foreign import capi unsafe "clang_wrappers.h clang_disposeIndex"
 foreign import capi unsafe "clang_wrappers.h clang_getFile"
   nowrapper_getFile :: CXTranslationUnit -> ConstPtr CChar -> IO CXFile
 
-foreign import capi unsafe "clang-c/Index.h clang_getFileContents"
-  nowrapper_getFileContents :: CXTranslationUnit -> CXFile -> Ptr CSize -> IO (Ptr CChar)
+foreign import capi unsafe "clang_wrappers.h clang_getFileContents"
+  nowrapper_getFileContents :: CXTranslationUnit -> CXFile -> Ptr CSize -> IO (ConstPtr CChar)
 
 foreign import capi unsafe "clang_wrappers.h"
   wrap_getLocation :: CXTranslationUnit -> CXFile -> CUInt -> CUInt -> W CXSourceLocation_ -> IO ()

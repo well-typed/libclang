@@ -53,6 +53,7 @@ module Clang.LowLevel.Core (
   , clang_disposeIndex
   , clang_getNumDiagnostics
   , clang_getDiagnostic
+  , clang_getFileContents
     -- * Diagnostic reporting
   , CXDiagnostic
   , CXDiagnosticSet
@@ -211,7 +212,6 @@ module Clang.LowLevel.Core (
   , clang_Location_isFromMainFile
     -- * File manipulation routines
   , clang_getFileName
-  , clang_getFileContents
     -- * Debugging
   , clang_breakpoint
     -- * Exceptions
@@ -2016,7 +2016,8 @@ clang_getFileContents ::
   => CXTranslationUnit -> CXFile -> m (Maybe Text)
 clang_getFileContents unit file = liftIO $
     alloca $ \sizePtr -> do
-      ptr <- nowrapper_getFileContents unit file sizePtr
+      cptr <- nowrapper_getFileContents unit file sizePtr
+      let ptr = unConstPtr cptr
       if ptr == nullPtr then
         pure Nothing
       else do

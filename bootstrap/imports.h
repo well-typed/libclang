@@ -9,7 +9,7 @@ void                clang_disposeIndex (CXIndex index);
 // OMITTED: void                clang_CXIndex_setInvocationEmissionPathOption (CXIndex, const char * Path);
 // OMITTED: unsigned            clang_isFileMultipleIncludeGuarded (CXTranslationUnit tu, CXFile file);
 CXFile              clang_getFile (CXTranslationUnit tu, const char * file_name);
-// OMITTED: const char *        clang_getFileContents (CXTranslationUnit tu, CXFile file, size_t * size);
+const char *        clang_getFileContents (CXTranslationUnit tu, CXFile file, size_t * size);
 CXSourceLocation    clang_getLocation (CXTranslationUnit tu, CXFile file, unsigned line, unsigned column);
 // OMITTED: CXSourceLocation    clang_getLocationForOffset (CXTranslationUnit tu, CXFile file, unsigned offset);
 // OMITTED: CXSourceRangeList * clang_getSkippedRanges (CXTranslationUnit tu, CXFile file);

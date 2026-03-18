@@ -13,8 +13,6 @@
 
 /* OMITTED: unsigned            clang_isFileMultipleIncludeGuarded (CXTranslationUnit tu, CXFile file); */
 
-/* clang_getFileContents: imported directly (no wrapper needed, returns pointer) */
-
 static inline void wrap_getLocation(CXTranslationUnit tu, CXFile file, unsigned line, unsigned column, CXSourceLocation * result) {
   *result = clang_getLocation(tu, file, line, column);
 }
