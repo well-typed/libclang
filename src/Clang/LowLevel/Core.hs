@@ -2010,7 +2010,7 @@ clang_getFileName file = liftIO $ preallocate_$ wrap_getFileName file
 --
 -- Returns 'Nothing' if the file is not loaded.
 --
--- <https://clang.llvm.org/doxygen/group__CINDEX__FILES.html#ga525e624a5765e291e9c1e31402ead9a0>
+-- <https://clang.llvm.org/doxygen/group__CINDEX.html#ga66e2b8da5d762063c3ff3f44bf1071a7>
 clang_getFileContents ::
      MonadIO m
   => CXTranslationUnit -> CXFile -> m (Maybe Text)
