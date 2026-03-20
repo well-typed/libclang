@@ -8,6 +8,8 @@ module Clang.HighLevel.Fold (
     -- * Construction
   , simpleFold
   , foldWithHandler
+  , FoldException (..)
+  , foldTry
     -- * Fold-specific operations
   , foldBreak
   , foldBreakWith
@@ -175,6 +177,41 @@ foldWithHandler handler foldNext =
         case fromException e of
           Just e' -> handler curr e'
           Nothing -> liftIO $ throwIO e
+
+-- | An exception that is caught during folding
+data FoldException e = FoldException {
+    -- | The exception proper
+    exception :: e
+    -- | A cursor pointing to the location in the AST where the exception was
+    -- caught
+  , cursor    :: CXCursor
+  }
+  deriving stock Show
+
+-- | Like 'foldWithHandler', but return the caught exception as a value like
+-- 'Control.Exception.try' would.
+foldTry ::
+     forall e m a. (MonadIO m, Exception e)
+  => (CXCursor -> m (Next m a))
+  -> Fold m (Either (FoldException e) a)
+foldTry foldNext = foldWithHandler handler foldNext'
+  where
+    foldNext' ::
+         CXCursor
+      -> m (Next m (Either (FoldException e) a))
+    foldNext' curr = fmap (fmap Right) (foldNext curr)
+
+    handler ::
+         CXCursor
+      -> SomeException
+      -> m (Maybe (Either (FoldException e) a))
+    handler curr err
+      | Just e <- fromException @e err = do
+          pure $ Just $ Left $ FoldException {
+              exception = e
+            , cursor = curr
+            }
+      | otherwise = liftIO $ throwIO err
 
 -- | Result of visiting one node
 --
