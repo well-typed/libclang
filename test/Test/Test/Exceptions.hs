@@ -26,7 +26,7 @@ import Test.Util.Input.StructForest (StructForest (..))
 import Test.Util.Input.StructForest qualified as StructForest
 
 import Clang.Enum.Simple
-import Clang.HighLevel.Types
+import Clang.HighLevel.Types hiding (FoldException)
 import Clang.LowLevel.Core
 
 {-------------------------------------------------------------------------------
