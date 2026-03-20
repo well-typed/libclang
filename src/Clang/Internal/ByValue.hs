@@ -67,6 +67,37 @@ copyToHaskellHeap src = fmap fst $
   Access
 -------------------------------------------------------------------------------}
 
+-- | A read-only byte array
+--
+-- This type is used to hold the bytes of a C struct that is passed by value as
+-- an argument to a C function through the Haskell FFI.
+--
+-- === Example
+--
+-- Let's say we want to generate Haskell bindings for this C code:
+--
+-- > struct S { int x; };
+-- > void foo (struct S x);
+--
+-- The Haskell FFI does not support passing structs by value, so we generate a C
+-- wrapper function that instead takes the struct argument by a pointer,
+-- dereferences the pointer, and passes the struct by-value on to the original
+-- @foo@.
+--
+-- > void foo_wrapper (struct S * x) { foo(*x); };
+--
+-- For the struct, we create a Haskell datatype. We add a foreign import that
+-- binds to the C wrapper function, using 'R'.
+--
+-- > data S {-# CType "struct S" #-} = S { x :: CInt }
+-- > foreign import capi unsafe "foo_wrapper" foo :: R S -> IO ()
+--
+-- We can use 'R' here even though the wrapper function takes a struct pointer,
+-- not a struct value. Any value of type 'R' is passed through the Haskell FFI
+-- as a pointer to the array payload because 'R' is an unlifted FFI type.
+--
+-- <https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/ffi.html#unlifted-ffi-types>
+type R :: k -> UnliftedType
 newtype R tag = R ByteArray#
 
 -- | Heap-allocated structs
@@ -90,6 +121,38 @@ instance LivesOnHaskellHeap (OnHaskellHeap tag) where
   Preallocation
 -------------------------------------------------------------------------------}
 
+-- | A read-write byte array
+--
+-- This type is used to hold the bytes of a C struct that is passed by value as
+-- a result from a C function through the Haskell FFI.
+--
+-- === Example
+--
+-- Let's say we want to generate Haskell bindings for this C code:
+--
+-- > struct S { int x; };
+-- > struct S foo ();
+--
+-- The Haskell FFI does not support passing structs by value, so we generate a C
+-- wrapper function that instead takes an extra struct argument pointer that is
+-- used to hold the struct result value from calling the original @foo@.
+--
+-- > void foo_wrapper (struct S * result) { *result = foo(); };
+--
+-- For the struct, we create a Haskell datatype. We add a foreign import that
+-- binds to the C wrapper function, using 'W'.
+--
+-- > data S {-# CType "struct S" #-} = S { x :: CInt }
+-- > foreign import capi unsafe "foo_wrapper" foo :: W S -> IO ()
+--
+-- We can use 'W' here even though the wrapper function takes a struct pointer,
+-- not a struct value. Any value of type 'W' is passed through the Haskell FFI
+-- as a pointer to the array payload because 'W' is an unlifted FFI type.
+-- Moreover, 'W' can be mutated by the C wrapper function, and the mutation will
+-- be visible in Haskell-land as well.
+--
+-- <https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/ffi.html#unlifted-ffi-types>
+type W :: k -> UnliftedType
 newtype W tag = W (MutableByteArray# RealWorld)
 
 -- | Preallocate a buffer
