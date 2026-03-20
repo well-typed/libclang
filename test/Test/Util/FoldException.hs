@@ -31,7 +31,7 @@ import Test.Util.AST qualified as AST
 import Test.Util.Clang qualified as Clang
 import Test.Util.Input (TestInput)
 
-import Clang.HighLevel.Types
+import Clang.HighLevel.Types hiding (FoldException)
 import Clang.LowLevel.Core
 
 {-------------------------------------------------------------------------------
