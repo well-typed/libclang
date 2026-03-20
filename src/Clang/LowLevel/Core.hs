@@ -192,6 +192,7 @@ module Clang.LowLevel.Core (
   , clang_getTokenLocation
   , clang_getTokenExtent
   , clang_tokenize
+  , clang_disposeToken
   , clang_disposeTokens
   , index_CXTokenArray
   , clang_annotateTokens
@@ -1758,6 +1759,15 @@ clang_tokenize unit range = liftIO $
       alloca $ \numTokens -> do
         wrap_tokenize unit range' array numTokens
         (,) <$> (CXTokenArray <$> peek array) <*> peek numTokens
+
+-- | Free a single token using 'clang_disposeTokens'.
+clang_disposeToken ::
+     MonadIO m
+  => CXTranslationUnit
+  -> CXToken
+  -> m ()
+clang_disposeToken unit (CXToken token) = liftIO $
+    nowrapper_disposeTokens unit token 1
 
 -- | Free the given set of tokens.
 --
