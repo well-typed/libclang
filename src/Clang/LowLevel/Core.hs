@@ -1657,29 +1657,6 @@ newtype CXToken = CXToken (Ptr CXToken_)
   deriving stock (Show)
   deriving newtype (IsNullPtr)
 
-foreign import capi unsafe "clang_wrappers.h wrap_getToken"
-  wrap_getToken :: CXTranslationUnit -> R CXSourceLocation_ -> IO (Ptr CXToken_)
-
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenKind"
-  nowrapper_getTokenKind :: Ptr CXToken_ -> IO (SimpleEnum CXTokenKind)
-
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenSpelling"
-  wrap_getTokenSpelling :: CXTranslationUnit -> Ptr CXToken_ -> W CXString_ -> IO ()
-
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenLocation"
-  wrap_getTokenLocation ::
-       CXTranslationUnit
-    -> Ptr CXToken_
-    -> W CXSourceLocation_
-    -> IO ()
-
-foreign import capi unsafe "clang_wrappers.h wrap_getTokenExtent"
-  wrap_getTokenExtent ::
-       CXTranslationUnit
-    -> Ptr CXToken_
-    -> W CXSourceRange_
-    -> IO ()
-
 -- | Get the raw lexical token starting with the given location.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LEX.html#ga3b41b2c8a34e605a14608927ae544c03>
@@ -1723,24 +1700,6 @@ clang_getTokenExtent unit (CXToken token) = liftIO $
 
 newtype CXTokenArray = CXTokenArray (Ptr CXToken_)
   deriving newtype (Storable)
-
-foreign import capi unsafe "clang_wrappers.h wrap_tokenize"
-  wrap_tokenize ::
-       CXTranslationUnit
-       -- ^ the translation unit whose text is being tokenized.
-    -> R CXSourceRange_
-       -- ^ the source range in which text should be tokenized. All of the
-       -- tokens produced by tokenization will fall within this source range
-    -> Ptr (Ptr CXToken_)
-       -- ^ this pointer will be set to point to the array of tokens that occur
-       -- within the given source range. The returned pointer must be freed with
-       -- clang_disposeTokens() before the translation unit is destroyed.
-    -> Ptr CUInt
-       -- ^ will be set to the number of tokens in the *Tokens array.
-    -> IO ()
-
-foreign import capi unsafe "clang-c/Index.h clang_disposeTokens"
-  nowrapper_disposeTokens :: CXTranslationUnit -> Ptr CXToken_ -> CUInt -> IO ()
 
 -- | Tokenize the source code described by the given range into raw lexical
 -- tokens.
@@ -1786,19 +1745,6 @@ index_CXTokenArray (CXTokenArray array) i = CXToken $
     array `plusPtr` (fromIntegral i * knownSize @CXToken_)
 
 newtype CXCursorArray = CXCursorArray (ArrOnHaskellHeap CXCursor_)
-
-foreign import capi unsafe "clang-c/Index.h clang_annotateTokens"
-  nowrapper_annotateTokens ::
-       CXTranslationUnit
-       -- ^ the translation unit that owns the given tokens.
-    -> Ptr CXToken_
-       -- ^ the set of tokens to annotate.
-    -> CUInt
-       -- ^ the number of tokens in Tokens.
-    -> W CXCursor_
-       -- ^ an array of NumTokens cursors, whose contents will be replaced with
-       -- the cursors corresponding to each token.
-    -> IO ()
 
 clang_annotateTokens ::
      MonadIO m
