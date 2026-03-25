@@ -1,3 +1,4 @@
 extra-libraries: @CLANG_EXTRA_LIBS@
-include-dirs:    @CLANG_INCLUDEDIR@
+include-dirs:    @CLANG_INCLUDEDIR@ autogen
 extra-lib-dirs:  @CLANG_LIBDIR@
+cpp-options:     @HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT@

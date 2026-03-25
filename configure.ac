@@ -1,6 +1,7 @@
 AC_PREREQ([2.69])
 AC_INIT([clang],[0.1.0])
 dnl AC_CONFIG_MACRO_DIRS([m4])
+AC_CONFIG_HEADERS([autogen/clang_config.h])
 
 AC_PROG_CC
 
@@ -91,6 +92,17 @@ AC_LINK_IFELSE(
   [AC_MSG_FAILURE([Unable to determine libclang version])]
 )
 AC_MSG_RESULT($LIBCLANG_BINDINGS_VERSION)
+
+dnl clang_isBeforeInTranslationUnit was introduced in Clang version 20.1, but
+dnl CINDEX_VERSION_MINOR was not bumped, so we need to check here.
+
+AC_CHECK_FUNC([clang_isBeforeInTranslationUnit],
+  [AC_DEFINE([HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT], [1],
+             [Define if clang_isBeforeInTranslationUnit is available (clang >= 20.1)])
+   HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT="-DHAVE_CLANG_ISBEFOREINTRANSLATIONUNIT"],
+  [HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT=""]
+)
+AC_SUBST([HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT])
 
 dnl Substitution
 

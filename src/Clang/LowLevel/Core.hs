@@ -1,3 +1,11 @@
+{-# LANGUAGE CPP #-}
+
+-- Ignore the redundant =MonadIO m= constraint when
+-- 'clang_isBeforeInTranslationUnit' is unavailable.
+#ifndef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+#endif
+
 -- | Low-level bindings to @libclang@
 --
 -- The goal of these bindings is to provide an API which is as close as possible
@@ -206,6 +214,7 @@ module Clang.LowLevel.Core (
   , clang_getExpansionLocation
   , clang_getPresumedLocation
   , clang_getSpellingLocation
+  , clang_isBeforeInTranslationUnit
   , clang_getFileLocation
   , clang_getLocation
   , clang_getRange
@@ -1878,6 +1887,23 @@ clang_getSpellingLocation location = liftIO $
       alloca $ \offset -> do
         wrap_getSpellingLocation location' file line column offset
         (,,,) <$> peek file <*> peek line <*> peek column <*> peek offset
+
+-- | Determine for two source locations if the first comes strictly before the second one in the source code.
+--
+-- Returns 'True' if the first source location comes strictly before the
+-- second one, 'False' otherwise.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html#ga01f1a342f7807ea742aedd2c61c46fa0>
+clang_isBeforeInTranslationUnit ::
+  MonadIO m => Maybe (CXSourceLocation -> CXSourceLocation -> m Bool)
+#ifdef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
+clang_isBeforeInTranslationUnit = Just $ \lhs rhs -> liftIO $
+    onHaskellHeap lhs $ \lhs' ->
+      onHaskellHeap rhs $ \rhs' ->
+        cToBool <$> wrap_isBeforeInTranslationUnit lhs' rhs'
+#else
+clang_isBeforeInTranslationUnit = Nothing
+#endif
 
 -- | Retrieve the file, line, column, and offset represented by the given source
 -- location.

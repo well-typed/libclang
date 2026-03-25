@@ -38,4 +38,6 @@ unversioned
 autom4te.cache/
 config.log
 config.status
-hs-bindgen-libclang.buildinfo
+autogen/clang_config.h
+autogen/Version_libclang_bindings.hs
+clang.buildinfo

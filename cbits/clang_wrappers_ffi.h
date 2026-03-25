@@ -83,7 +83,13 @@ static inline void wrap_getFileName(CXFile SFile, CXString * result) {
 
 /* OMITTED: unsigned         clang_equalLocations (CXSourceLocation loc1, CXSourceLocation loc2); */
 
-/* OMITTED: unsigned         clang_isBeforeInTranslationUnit (CXSourceLocation loc1, CXSourceLocation loc2); */
+#ifdef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
+
+static inline unsigned wrap_isBeforeInTranslationUnit(const CXSourceLocation * loc1, const CXSourceLocation * loc2) {
+  return clang_isBeforeInTranslationUnit(*loc1, *loc2);
+}
+
+#endif
 
 /* OMITTED: int              clang_Location_isInSystemHeader (CXSourceLocation location); */
 

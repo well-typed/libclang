@@ -54,7 +54,11 @@ CXString clang_getFileName (CXFile SFile);
 
 // OMITTED: CXSourceLocation clang_getNullLocation (void);
 // OMITTED: unsigned         clang_equalLocations (CXSourceLocation loc1, CXSourceLocation loc2);
-// OMITTED: unsigned         clang_isBeforeInTranslationUnit (CXSourceLocation loc1, CXSourceLocation loc2);
+
+#ifdef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
+unsigned         clang_isBeforeInTranslationUnit (CXSourceLocation loc1, CXSourceLocation loc2);
+#endif
+
 // OMITTED: int              clang_Location_isInSystemHeader (CXSourceLocation location);
 int              clang_Location_isFromMainFile (CXSourceLocation location);
 // OMITTED: CXSourceRange    clang_getNullRange (void);
