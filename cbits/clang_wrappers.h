@@ -3,7 +3,6 @@
 
 #include <clang-c/Index.h>
 #include <stdio.h>
-#include "clang_config.h"
 #include "clang_wrappers_ffi.h"
 
 /**

@@ -1,11 +1,5 @@
 {-# LANGUAGE CPP #-}
 
--- Ignore the redundant =MonadIO m= constraint when
--- 'clang_isBeforeInTranslationUnit' is unavailable.
-#ifndef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
-#endif
-
 -- | Low-level bindings to @libclang@
 --
 -- The goal of these bindings is to provide an API which is as close as possible
@@ -235,6 +229,8 @@ module Clang.LowLevel.Core (
   , IsNullPtr(..)
   , nullCursor
   ) where
+
+#include "clang_config.h"
 
 import Control.Exception
 import Control.Monad
@@ -1894,8 +1890,11 @@ clang_getSpellingLocation location = liftIO $
 -- second one, 'False' otherwise.
 --
 -- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html#ga01f1a342f7807ea742aedd2c61c46fa0>
+--
+-- 'clang_isBeforeInTranslationUnit' is not available for Clang versions older than 20.1.
 clang_isBeforeInTranslationUnit ::
-  MonadIO m => Maybe (CXSourceLocation -> CXSourceLocation -> m Bool)
+     forall m. MonadIO m
+  => Maybe (CXSourceLocation -> CXSourceLocation -> m Bool)
 #ifdef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
 clang_isBeforeInTranslationUnit = Just $ \lhs rhs -> liftIO $
     onHaskellHeap lhs $ \lhs' ->
@@ -1903,6 +1902,11 @@ clang_isBeforeInTranslationUnit = Just $ \lhs rhs -> liftIO $
         cToBool <$> wrap_isBeforeInTranslationUnit lhs' rhs'
 #else
 clang_isBeforeInTranslationUnit = Nothing
+  where
+    -- Trick the compiler into thinking @MonadIO m@ is not a redundant
+    -- constraint
+    _unused :: ()
+    _unused = const () $ liftIO @m
 #endif
 
 -- | Retrieve the file, line, column, and offset represented by the given source
