@@ -18,6 +18,7 @@ tested-with:
    || ==9.14.1
 
 extra-source-files:
+  autogen/clang_config.h.in
   autogen/Version_libclang_bindings.hs.in
   bootstrap/imports.h
   cbits/*.c

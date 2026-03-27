@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Low-level bindings to @libclang@
 --
 -- The goal of these bindings is to provide an API which is as close as possible
@@ -206,6 +208,7 @@ module Clang.LowLevel.Core (
   , clang_getExpansionLocation
   , clang_getPresumedLocation
   , clang_getSpellingLocation
+  , clang_isBeforeInTranslationUnit
   , clang_getFileLocation
   , clang_getLocation
   , clang_getRange
@@ -226,6 +229,8 @@ module Clang.LowLevel.Core (
   , IsNullPtr(..)
   , nullCursor
   ) where
+
+#include "clang_config.h"
 
 import Control.Exception
 import Control.Monad
@@ -1878,6 +1883,31 @@ clang_getSpellingLocation location = liftIO $
       alloca $ \offset -> do
         wrap_getSpellingLocation location' file line column offset
         (,,,) <$> peek file <*> peek line <*> peek column <*> peek offset
+
+-- | Determine for two source locations if the first comes strictly before the second one in the source code.
+--
+-- Returns 'True' if the first source location comes strictly before the
+-- second one, 'False' otherwise.
+--
+-- <https://clang.llvm.org/doxygen/group__CINDEX__LOCATIONS.html#ga01f1a342f7807ea742aedd2c61c46fa0>
+--
+-- 'clang_isBeforeInTranslationUnit' is not available for Clang versions older than 20.1.
+clang_isBeforeInTranslationUnit ::
+     forall m. MonadIO m
+  => Maybe (CXSourceLocation -> CXSourceLocation -> m Bool)
+#ifdef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
+clang_isBeforeInTranslationUnit = Just $ \lhs rhs -> liftIO $
+    onHaskellHeap lhs $ \lhs' ->
+      onHaskellHeap rhs $ \rhs' ->
+        cToBool <$> wrap_isBeforeInTranslationUnit lhs' rhs'
+#else
+clang_isBeforeInTranslationUnit = Nothing
+  where
+    -- Trick the compiler into thinking @MonadIO m@ is not a redundant
+    -- constraint
+    _unused :: ()
+    _unused = const () $ liftIO @m
+#endif
 
 -- | Retrieve the file, line, column, and offset represented by the given source
 -- location.

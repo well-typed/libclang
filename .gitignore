@@ -38,4 +38,10 @@ unversioned
 autom4te.cache/
 config.log
 config.status
-hs-bindgen-libclang.buildinfo
+
+# When running `autoconf` and `./configure` in the shell, these files are
+# created. They are also directly created in the Cabal build pipeline
+# (`dist-newstyle`), and should not be committed.
+autogen/clang_config.h
+autogen/Version_libclang_bindings.hs
+clang.buildinfo

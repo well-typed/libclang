@@ -1,0 +1,4 @@
+/* autogen/clang_config.h.in. Generated from configure.ac by autoheader. */
+
+/* Define if clang_isBeforeInTranslationUnit is available (clang >= 20.1) */
+#undef HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
