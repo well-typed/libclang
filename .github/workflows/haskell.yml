@@ -170,6 +170,22 @@ jobs:
         echo "--- Home directory size ---"
         du -sh $HOME
 
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install build-essential
+
+    - if: runner.os == 'macOS'
+      name: Install dependencies (MacOS)
+      run: |
+        brew install coreutils autoconf automake
+
+    - name: 🛠️ Configure (autoreconf)
+      run: |
+        autoreconf --version
+        autoreconf -i
+
     - name: 🛠️ Configure
       run: |
         cabal configure \
