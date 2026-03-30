@@ -1,7 +1,6 @@
 AC_PREREQ([2.69])
 AC_INIT([clang],[0.1.0])
 dnl AC_CONFIG_MACRO_DIRS([m4])
-AC_CONFIG_HEADERS([autogen/clang_config.h])
 
 AC_PROG_CC
 
@@ -114,6 +113,6 @@ AC_SUBST(
   ["$(echo ${LIBCLANG_BINDINGS_VERSION} | sed 's/\"/\\\"/g')"]
 )
 
-AC_CONFIG_FILES([clang.buildinfo autogen/Version_libclang_bindings.hs])
+AC_CONFIG_FILES([clang.buildinfo autogen/Version_libclang_bindings.hs autogen/clang_config.h])
 
 AC_OUTPUT
