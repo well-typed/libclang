@@ -242,6 +242,13 @@ jobs:
           echo '== $PATH ======================================================================='
           echo "${PATH}" | tr ':' '\n'
 
+      - name: "[setup] Configure autoconf"
+        shell: "C:/msys64/usr/bin/bash.exe -e {0}"
+        run: |
+          /usr/bin/pacman --noconfirm -Sy base-devel automake-wrapper autoconf-wrapper
+          PATH=$PATH:/usr/bin /usr/bin/autoreconf --version
+          PATH=$PATH:/usr/bin /usr/bin/autoreconf -i
+
       - name: "[setup] Configure project"
         run: |
           cabal configure \
