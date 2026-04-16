@@ -113,17 +113,20 @@ library
     Clang.LowLevel.Doxygen.Instances
     Clang.LowLevel.Doxygen.Structs
     Clang.LowLevel.FFI
+    Clang.Version.Internal
+    Clang.Version.Internal.Check
     Version_libclang_bindings
 
   autogen-modules:    Version_libclang_bindings
 
   -- External dependencies
   build-depends:
-    , bytestring     >=0.11  && <0.13
-    , data-default   >=0.7   && <0.9
-    , exceptions     >=0.10  && <0.11
-    , text           >=1.2   && <2.2
-    , unliftio-core  >=0.2.1 && <0.3
+    , bytestring        >=0.11  && <0.13
+    , data-default      >=0.7   && <0.9
+    , exceptions        >=0.10  && <0.11
+    , template-haskell  >=2.18  && <2.25
+    , text              >=1.2   && <2.2
+    , unliftio-core     >=0.2.1 && <0.3
 
   -- C bindings
   if impl(ghc <9.4)
