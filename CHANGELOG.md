@@ -16,6 +16,8 @@
   returns the caught exception as a value like `Control.Exception.try` would.
   The caught exception is represented using a new type called `FoldException`.
   See [PR #47][pr-47]
+* Add a compile-time check of the `CLANG_VERSION` macro. See the
+  `Clang.Version.checkUserClangVersion` documentation for details.
 
 ### Minor changes
 
