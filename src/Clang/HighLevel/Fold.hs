@@ -26,8 +26,7 @@ module Clang.HighLevel.Fold (
   , clang_visitChildren
   ) where
 
-import Control.Exception (Exception (..), ExceptionWithContext (..), SomeException)
-import Control.Exception qualified as Base
+import Control.Exception (Exception (..), SomeException)
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.IO.Unlift (MonadUnliftIO (withRunInIO))
@@ -35,6 +34,7 @@ import Data.IORef
 import GHC.Stack
 
 import Clang.Enum.Simple
+import Clang.Internal.Exception
 import Clang.LowLevel.Core hiding (clang_visitChildren)
 import Clang.LowLevel.Core qualified as Core
 
@@ -304,26 +304,6 @@ instance Functor m => Functor (Fold m) where
         foldNext    = \curr -> fmap (fmap f) $ foldNext curr
       , foldHandler = \curr -> fmap (fmap f) . foldHandler curr
       }
-
-{-------------------------------------------------------------------------------
-  Internal: exception handling
-
-  We do not use @handle@ from @unlift@, as it excludes async exceptions, and we
-  want it to be up to the exception handler to decide if it wants to deal with
-  async exceptions or not.
--------------------------------------------------------------------------------}
-
-throwIO :: MonadIO m => SomeException -> m a
-throwIO e = liftIO (Base.rethrowIO (ExceptionWithContext (Base.someExceptionContext e) e))
-
-try :: IO a -> IO (Either SomeException a)
-try m = Base.catchNoPropagate (Right <$> m) (\(ExceptionWithContext _ e) -> pure (Left e))
-
-type RunInIO m = forall a. m a -> IO a
-
-handleUnliftUsing :: MonadIO n => RunInIO m -> (SomeException -> m a) -> m a -> n a
-handleUnliftUsing runInIO handler action = liftIO $
-    Base.catchNoPropagate (runInIO action) (\(ExceptionWithContext _ e) -> runInIO (handler e))
 
 {-------------------------------------------------------------------------------
   Internal: partial results
