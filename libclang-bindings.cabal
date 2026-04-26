@@ -20,6 +20,8 @@ tested-with:
 extra-source-files:
   autogen/clang_config.h.in
   autogen/Version_libclang_bindings.hs.in
+  bootstrap/clang-bootstrap.cabal
+  bootstrap/clang-bootstrap.hs
   bootstrap/imports.h
   cbits/*.c
   cbits/*.h
@@ -39,11 +41,6 @@ source-repository this
   type:     git
   location: https://github.com/well-typed/libclang
   tag:      bloomfilter-blocked-0.1.0
-
-flag dev
-  description: Build debugging utilities for developing clang itself
-  default:     False
-  manual:      True
 
 common lang
   ghc-options:
@@ -136,22 +133,6 @@ library
   cc-options:         -Wall
   c-sources:          cbits/clang_wrappers.c
   build-tool-depends: hsc2hs:hsc2hs
-
-executable clang-bootstrap
-  import:         lang
-  main-is:        clang-bootstrap.hs
-  hs-source-dirs: bootstrap
-
-  if flag(dev)
-    buildable: True
-
-  else
-    buildable: False
-
-  -- New dependencies
-  build-depends:
-    , bytestring  >=0.11.4.0 && <0.13
-    , parsec      >=3.1      && <3.2
 
 test-suite clang-tutorial
   import:         lang
