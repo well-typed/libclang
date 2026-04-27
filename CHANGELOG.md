@@ -18,6 +18,8 @@
   See [PR #47][pr-47]
 * Add a compile-time check of the `CLANG_VERSION` macro. See the
   `Clang.Version.checkUserClangVersion` documentation for details.
+* Add `--with-so` option to the `configure` script, used to work around Cabal
+  linking issues.
 
 ### Minor changes
 

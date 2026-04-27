@@ -647,12 +647,6 @@ ac_header_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 LIBCLANG_BINDINGS_VERSION
-CLANG_INCLUDEDIR
-CLANG_LIBDIR
-CLANG_EXTRA_LIBS
-HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT
-LLVM_PATH
-LLVM_CONFIG
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -660,6 +654,11 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+CLANG_INCLUDE_DIR
+CLANG_LIB_DIRS
+CLANG_LIB
+LLVM_PATH
+LLVM_CONFIG
 target_alias
 host_alias
 build_alias
@@ -703,17 +702,18 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_compiler
+with_so
 '
       ac_precious_vars='build_alias
 host_alias
 target_alias
+LLVM_CONFIG
+LLVM_PATH
 CC
 CFLAGS
 LDFLAGS
 LIBS
-CPPFLAGS
-LLVM_CONFIG
-LLVM_PATH'
+CPPFLAGS'
 
 
 # Initialize some variables set by options.
@@ -1333,7 +1333,11 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-compiler         Haskell compiler
 
+  --with-so=PATH          shared library to link to
+
 Some influential environment variables:
+  LLVM_CONFIG Location of llvm-config
+  LLVM_PATH   Location of LLVM installation
   CC          C compiler command
   CFLAGS      C compiler flags
   LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
@@ -1341,8 +1345,6 @@ Some influential environment variables:
   LIBS        libraries to pass to the linker, e.g. -l<library>
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
-  LLVM_CONFIG Location of llvm-config
-  LLVM_PATH   Location of LLVM installation
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -2285,6 +2287,176 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
+
+
+# Check whether --with-compiler was given.
+if test ${with_compiler+y}
+then :
+  withval=$with_compiler;
+fi
+
+
+wt_with_so_path='NOT_SET'
+
+# Check whether --with-so was given.
+if test ${with_so+y}
+then :
+  withval=$with_so; wt_with_so_path=$withval
+fi
+
+case "$wt_with_so_path" in
+  /*)
+    if test ! -f "$wt_with_so_path" ; then
+      as_fn_error $? "--with-so file not found: $wt_with_so_path" "$LINENO" 5
+    fi
+    wt_user_lib_dir="$(dirname "$wt_with_so_path")"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: with library directory: $wt_user_lib_dir" >&5
+printf "%s\n" "$as_me: with library directory: $wt_user_lib_dir" >&6;}
+    wt_with_so_filename="$(basename "$wt_with_so_path")"
+    wt_with_so_lib_1="${wt_with_so_filename#lib}"
+    if test "$wt_with_so_lib_1" = "$wt_with_so_filename" ; then
+      as_fn_error $? "--with-so file does not have lib prefix: $wt_with_so_path" "$LINENO" 5
+    fi
+    wt_user_lib="${wt_with_so_lib_1%.so}"
+    if test "$wt_user_lib" = "$wt_with_so_lib_1" ; then
+      as_fn_error $? "--with-so file does not have .so suffix: $wt_with_so_path" "$LINENO" 5
+    fi
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: with library: $wt_user_lib" >&5
+printf "%s\n" "$as_me: with library: $wt_user_lib" >&6;}
+    ;;
+  'NOT_SET')
+    ;;
+  '')
+    as_fn_error $? "--with-so specified without an argument" "$LINENO" 5
+    ;;
+  *)
+    as_fn_error $? "--with-so path not absolute: $wt_with_so_path" "$LINENO" 5
+    ;;
+esac
+
+
+# Extract the first word of "llvm-config", so it can be a program name with args.
+set dummy llvm-config; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_LLVM_CONFIG+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $LLVM_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_LLVM_CONFIG="$LLVM_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_LLVM_CONFIG="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+LLVM_CONFIG=$ac_cv_path_LLVM_CONFIG
+if test -n "$LLVM_CONFIG"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LLVM_CONFIG" >&5
+printf "%s\n" "$LLVM_CONFIG" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM resolution mode" >&5
+printf %s "checking LLVM resolution mode... " >&6; }
+if test -n "$LLVM_CONFIG" ; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: llvm-config" >&5
+printf "%s\n" "llvm-config" >&6; }
+else
+  if test -n "$LLVM_PATH" ; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: LLVM_PATH=$LLVM_PATH" >&5
+printf "%s\n" "LLVM_PATH=$LLVM_PATH" >&6; }
+  else
+    as_fn_error $? "llvm-config not found and LLVM_PATH not set" "$LINENO" 5
+  fi
+fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM version" >&5
+printf %s "checking LLVM version... " >&6; }
+if test -n "$LLVM_CONFIG" ; then
+    wt_llvm_version="$("$LLVM_CONFIG" --version)"
+  if test $? == 0 ; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_llvm_version" >&5
+printf "%s\n" "$wt_llvm_version" >&6; }
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: error" >&5
+printf "%s\n" "error" >&6; }
+    as_fn_error $? "could not run llvm-config" "$LINENO" 5
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: skipped" >&5
+printf "%s\n" "skipped" >&6; }
+fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking Clang library" >&5
+printf %s "checking Clang library... " >&6; }
+if test -n "$wt_user_lib" ; then
+  wt_clang_lib="$wt_user_lib"
+else
+  wt_clang_lib='clang'
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_clang_lib" >&5
+printf "%s\n" "$wt_clang_lib" >&6; }
+CLANG_LIB="$wt_clang_lib"
+
+LIBS="${LIBS} -l${wt_clang_lib}"
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM library directories" >&5
+printf %s "checking LLVM library directories... " >&6; }
+if test -n "$LLVM_CONFIG" ; then
+  wt_clang_lib_dirs="$("$LLVM_CONFIG" --libdir)"
+else
+  wt_clang_lib_dirs="${LLVM_PATH}/lib"
+fi
+if test -n "$wt_user_lib_dir" && test "$wt_user_lib_dir" != "$wt_clang_lib_dirs"; then
+  LDFLAGS="${LDFLAGS} -L${wt_user_lib_dir} -L${wt_clang_lib_dirs}"
+  wt_clang_lib_dirs="${wt_user_lib_dir} ${wt_clang_lib_dirs}"
+else
+  LDFLAGS="${LDFLAGS} -L${wt_clang_lib_dirs}"
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_clang_lib_dirs" >&5
+printf "%s\n" "$wt_clang_lib_dirs" >&6; }
+CLANG_LIB_DIRS="$wt_clang_lib_dirs"
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM include directory" >&5
+printf %s "checking LLVM include directory... " >&6; }
+if test -n "$LLVM_CONFIG" ; then
+  wt_clang_include_dir="$("$LLVM_CONFIG" --includedir)"
+else
+  wt_clang_include_dir="${LLVM_PATH}/include"
+fi
+CPPFLAGS="${CPPFLAGS} -I${wt_clang_include_dir}"
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_clang_include_dir" >&5
+printf "%s\n" "$wt_clang_include_dir" >&6; }
+CLANG_INCLUDE_DIR="$wt_clang_include_dir"
 
 
 
@@ -3284,118 +3456,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Check whether --with-compiler was given.
-if test ${with_compiler+y}
-then :
-  withval=$with_compiler;
-fi
-
-
-
-
-
-
-# Extract the first word of "llvm-config", so it can be a program name with args.
-set dummy llvm-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_LLVM_CONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $LLVM_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_LLVM_CONFIG="$LLVM_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_LLVM_CONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-LLVM_CONFIG=$ac_cv_path_LLVM_CONFIG
-if test -n "$LLVM_CONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LLVM_CONFIG" >&5
-printf "%s\n" "$LLVM_CONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-if test -z "$LLVM_CONFIG"; then
-  if test -z "$LLVM_PATH"; then
-    as_fn_error $? "could not find llvm-config; LLVM_PATH is also not set" "$LINENO" 5
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: could not find llvm-config; using LLVM_PATH=$LLVM_PATH" >&5
-printf "%s\n" "$as_me: could not find llvm-config; using LLVM_PATH=$LLVM_PATH" >&6;}
-  fi
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM version" >&5
-printf %s "checking LLVM version... " >&6; }
-
-if test -z "$LLVM_CONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: skipped" >&5
-printf "%s\n" "skipped" >&6; }
-else
-LLVM_VERSION="$("$LLVM_CONFIG" --version)"
-if test $? == 0; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LLVM_VERSION" >&5
-printf "%s\n" "$LLVM_VERSION" >&6; }
-  else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: error" >&5
-printf "%s\n" "error" >&6; }
-  as_fn_error $? "could not run llvm-config" "$LINENO" 5
-fi
-fi
-
-
-CLANG_EXTRA_LIBS="clang"
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM library directory" >&5
-printf %s "checking LLVM library directory... " >&6; }
-if test -z "$LLVM_CONFIG"; then
-CLANG_LIBDIR="$LLVM_PATH/lib"
-else
-CLANG_LIBDIR="$("$LLVM_CONFIG" --libdir)";
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CLANG_LIBDIR" >&5
-printf "%s\n" "$CLANG_LIBDIR" >&6; }
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking LLVM include directory" >&5
-printf %s "checking LLVM include directory... " >&6; }
-if test -z "$LLVM_CONFIG"; then
-CLANG_INCLUDEDIR="$LLVM_PATH/include"
-else
-CLANG_INCLUDEDIR="$("$LLVM_CONFIG" --includedir)"
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CLANG_INCLUDEDIR" >&5
-printf "%s\n" "$CLANG_INCLUDEDIR" >&6; }
-
-
-LIBS="$LIBS -l$CLANG_EXTRA_LIBS"
-LDFLAGS="$LDFLAGS -L$CLANG_LIBDIR"
-CPPFLAGS="$CPPFLAGS -I$CLANG_INCLUDEDIR"
-
-
 ac_header= ac_cache=
 for ac_item in $ac_header_c_list
 do
@@ -3431,16 +3491,19 @@ then :
 
 else $as_nop
   as_fn_error $? "Cannot find libclang headers" "$LINENO" 5
+
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for clang_createIndex in -lclang" >&5
-printf %s "checking for clang_createIndex in -lclang... " >&6; }
-if test ${ac_cv_lib_clang_clang_createIndex+y}
+
+as_ac_Lib=`printf "%s\n" "ac_cv_lib_$wt_clang_lib""_clang_createIndex" | $as_tr_sh`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for clang_createIndex in -l$wt_clang_lib" >&5
+printf %s "checking for clang_createIndex in -l$wt_clang_lib... " >&6; }
+if eval test \${$as_ac_Lib+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lclang  $LIBS"
+LIBS="-l$wt_clang_lib  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3458,24 +3521,28 @@ return clang_createIndex ();
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_clang_clang_createIndex=yes
+  eval "$as_ac_Lib=yes"
 else $as_nop
-  ac_cv_lib_clang_clang_createIndex=no
+  eval "$as_ac_Lib=no"
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_clang_clang_createIndex" >&5
-printf "%s\n" "$ac_cv_lib_clang_clang_createIndex" >&6; }
-if test "x$ac_cv_lib_clang_clang_createIndex" = xyes
+eval ac_res=\$$as_ac_Lib
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_Lib"\" = x"yes"
 then :
-  printf "%s\n" "#define HAVE_LIBCLANG 1" >>confdefs.h
+  cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_LIB$wt_clang_lib" | $as_tr_cpp` 1
+_ACEOF
 
-  LIBS="-lclang $LIBS"
+  LIBS="-l$wt_clang_lib $LIBS"
 
 else $as_nop
   as_fn_error $? "Cannot link against libclang" "$LINENO" 5
+
 fi
 
 
@@ -3502,7 +3569,7 @@ main (void)
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  LIBCLANG_BINDINGS_VERSION=$(./conftest$EXEEXT)
+  wt_libclang_bindings_version=$(./conftest$EXEEXT)
 else $as_nop
   { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
@@ -3512,34 +3579,23 @@ See \`config.log' for more details" "$LINENO" 5; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LIBCLANG_BINDINGS_VERSION" >&5
-printf "%s\n" "$LIBCLANG_BINDINGS_VERSION" >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $wt_libclang_bindings_version" >&5
+printf "%s\n" "$wt_libclang_bindings_version" >&6; }
+LIBCLANG_BINDINGS_VERSION="$(echo ${wt_libclang_bindings_version} | sed 's/\"/\\\"/g')"
+
 
 
 ac_fn_c_check_func "$LINENO" "clang_isBeforeInTranslationUnit" "ac_cv_func_clang_isBeforeInTranslationUnit"
 if test "x$ac_cv_func_clang_isBeforeInTranslationUnit" = xyes
 then :
-
-printf "%s\n" "#define HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT 1" >>confdefs.h
-
-   HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT="-DHAVE_CLANG_ISBEFOREINTRANSLATIONUNIT"
-else $as_nop
-  HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT=""
+  printf "%s\n" "#define HAVE_CLANG_ISBEFOREINTRANSLATIONUNIT 1" >>confdefs.h
 
 fi
 
 
+ac_config_headers="$ac_config_headers autogen/clang_config.h"
 
-
-
-
-
-LIBCLANG_BINDINGS_VERSION="$(echo ${LIBCLANG_BINDINGS_VERSION} | sed 's/\"/\\\"/g')"
-
-
-
-ac_config_files="$ac_config_files clang.buildinfo autogen/Version_libclang_bindings.hs autogen/clang_config.h"
-
+ac_config_files="$ac_config_files clang.buildinfo autogen/Version_libclang_bindings.hs"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3631,43 +3687,7 @@ test "x$prefix" = xNONE && prefix=$ac_default_prefix
 # Let make expand exec_prefix.
 test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 
-# Transform confdefs.h into DEFS.
-# Protect against shell expansion while executing Makefile rules.
-# Protect against Makefile macro expansion.
-#
-# If the first sed substitution is executed (which looks for macros that
-# take arguments), then branch to the quote section.  Otherwise,
-# look for a macro that doesn't take arguments.
-ac_script='
-:mline
-/\\$/{
- N
- s,\\\n,,
- b mline
-}
-t clear
-:clear
-s/^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 (][^	 (]*([^)]*)\)[	 ]*\(.*\)/-D\1=\2/g
-t quote
-s/^[	 ]*#[	 ]*define[	 ][	 ]*\([^	 ][^	 ]*\)[	 ]*\(.*\)/-D\1=\2/g
-t quote
-b any
-:quote
-s/[	 `~#$^&*(){}\\|;'\''"<>?]/\\&/g
-s/\[/\\&/g
-s/\]/\\&/g
-s/\$/$$/g
-H
-:any
-${
-	g
-	s/^\n//
-	s/\n/ /g
-	p
-}
-'
-DEFS=`sed -n "$ac_script" confdefs.h`
-
+DEFS=-DHAVE_CONFIG_H
 
 ac_libobjs=
 ac_ltlibobjs=
@@ -4094,11 +4114,15 @@ case $ac_config_files in *"
 "*) set x $ac_config_files; shift; ac_config_files=$*;;
 esac
 
+case $ac_config_headers in *"
+"*) set x $ac_config_headers; shift; ac_config_headers=$*;;
+esac
 
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
 config_files="$ac_config_files"
+config_headers="$ac_config_headers"
 
 _ACEOF
 
@@ -4119,9 +4143,14 @@ Usage: $0 [OPTION]... [TAG]...
       --recheck    update $as_me by reconfiguring in the same conditions
       --file=FILE[:TEMPLATE]
                    instantiate the configuration file FILE
+      --header=FILE[:TEMPLATE]
+                   instantiate the configuration header FILE
 
 Configuration files:
 $config_files
+
+Configuration headers:
+$config_headers
 
 Report bugs to the package provider."
 
@@ -4185,7 +4214,18 @@ do
     esac
     as_fn_append CONFIG_FILES " '$ac_optarg'"
     ac_need_defaults=false;;
-  --he | --h |  --help | --hel | -h )
+  --header | --heade | --head | --hea )
+    $ac_shift
+    case $ac_optarg in
+    *\'*) ac_optarg=`printf "%s\n" "$ac_optarg" | sed "s/'/'\\\\\\\\''/g"` ;;
+    esac
+    as_fn_append CONFIG_HEADERS " '$ac_optarg'"
+    ac_need_defaults=false;;
+  --he | --h)
+    # Conflict between --help and --header
+    as_fn_error $? "ambiguous option: \`$1'
+Try \`$0 --help' for more information.";;
+  --help | --hel | -h )
     printf "%s\n" "$ac_cs_usage"; exit ;;
   -q | -quiet | --quiet | --quie | --qui | --qu | --q \
   | -silent | --silent | --silen | --sile | --sil | --si | --s)
@@ -4241,9 +4281,9 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
+    "autogen/clang_config.h") CONFIG_HEADERS="$CONFIG_HEADERS autogen/clang_config.h" ;;
     "clang.buildinfo") CONFIG_FILES="$CONFIG_FILES clang.buildinfo" ;;
     "autogen/Version_libclang_bindings.hs") CONFIG_FILES="$CONFIG_FILES autogen/Version_libclang_bindings.hs" ;;
-    "autogen/clang_config.h") CONFIG_FILES="$CONFIG_FILES autogen/clang_config.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -4256,6 +4296,7 @@ done
 # bizarre bug on SunOS 4.1.3.
 if $ac_need_defaults; then
   test ${CONFIG_FILES+y} || CONFIG_FILES=$config_files
+  test ${CONFIG_HEADERS+y} || CONFIG_HEADERS=$config_headers
 fi
 
 # Have a temporary directory for convenience.  Make it in the build tree
@@ -4443,8 +4484,116 @@ fi
 cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 fi # test -n "$CONFIG_FILES"
 
+# Set up the scripts for CONFIG_HEADERS section.
+# No need to generate them if there are no CONFIG_HEADERS.
+# This happens for instance with `./config.status Makefile'.
+if test -n "$CONFIG_HEADERS"; then
+cat >"$ac_tmp/defines.awk" <<\_ACAWK ||
+BEGIN {
+_ACEOF
 
-eval set X "  :F $CONFIG_FILES      "
+# Transform confdefs.h into an awk script `defines.awk', embedded as
+# here-document in config.status, that substitutes the proper values into
+# config.h.in to produce config.h.
+
+# Create a delimiter string that does not exist in confdefs.h, to ease
+# handling of long lines.
+ac_delim='%!_!# '
+for ac_last_try in false false :; do
+  ac_tt=`sed -n "/$ac_delim/p" confdefs.h`
+  if test -z "$ac_tt"; then
+    break
+  elif $ac_last_try; then
+    as_fn_error $? "could not make $CONFIG_HEADERS" "$LINENO" 5
+  else
+    ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
+  fi
+done
+
+# For the awk script, D is an array of macro values keyed by name,
+# likewise P contains macro parameters if any.  Preserve backslash
+# newline sequences.
+
+ac_word_re=[_$as_cr_Letters][_$as_cr_alnum]*
+sed -n '
+s/.\{148\}/&'"$ac_delim"'/g
+t rset
+:rset
+s/^[	 ]*#[	 ]*define[	 ][	 ]*/ /
+t def
+d
+:def
+s/\\$//
+t bsnl
+s/["\\]/\\&/g
+s/^ \('"$ac_word_re"'\)\(([^()]*)\)[	 ]*\(.*\)/P["\1"]="\2"\
+D["\1"]=" \3"/p
+s/^ \('"$ac_word_re"'\)[	 ]*\(.*\)/D["\1"]=" \2"/p
+d
+:bsnl
+s/["\\]/\\&/g
+s/^ \('"$ac_word_re"'\)\(([^()]*)\)[	 ]*\(.*\)/P["\1"]="\2"\
+D["\1"]=" \3\\\\\\n"\\/p
+t cont
+s/^ \('"$ac_word_re"'\)[	 ]*\(.*\)/D["\1"]=" \2\\\\\\n"\\/p
+t cont
+d
+:cont
+n
+s/.\{148\}/&'"$ac_delim"'/g
+t clear
+:clear
+s/\\$//
+t bsnlc
+s/["\\]/\\&/g; s/^/"/; s/$/"/p
+d
+:bsnlc
+s/["\\]/\\&/g; s/^/"/; s/$/\\\\\\n"\\/p
+b cont
+' <confdefs.h | sed '
+s/'"$ac_delim"'/"\\\
+"/g' >>$CONFIG_STATUS || ac_write_fail=1
+
+cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
+  for (key in D) D_is_set[key] = 1
+  FS = ""
+}
+/^[\t ]*#[\t ]*(define|undef)[\t ]+$ac_word_re([\t (]|\$)/ {
+  line = \$ 0
+  split(line, arg, " ")
+  if (arg[1] == "#") {
+    defundef = arg[2]
+    mac1 = arg[3]
+  } else {
+    defundef = substr(arg[1], 2)
+    mac1 = arg[2]
+  }
+  split(mac1, mac2, "(") #)
+  macro = mac2[1]
+  prefix = substr(line, 1, index(line, defundef) - 1)
+  if (D_is_set[macro]) {
+    # Preserve the white space surrounding the "#".
+    print prefix "define", macro P[macro] D[macro]
+    next
+  } else {
+    # Replace #undef with comments.  This is necessary, for example,
+    # in the case of _POSIX_SOURCE, which is predefined and required
+    # on some systems where configure will not decide to define it.
+    if (defundef == "undef") {
+      print "/*", prefix defundef, macro, "*/"
+      next
+    }
+  }
+}
+{ print }
+_ACAWK
+_ACEOF
+cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
+  as_fn_error $? "could not setup config headers machinery" "$LINENO" 5
+fi # test -n "$CONFIG_HEADERS"
+
+
+eval set X "  :F $CONFIG_FILES  :H $CONFIG_HEADERS    "
 shift
 for ac_tag
 do
@@ -4652,7 +4801,30 @@ which seems to be undefined.  Please make sure it is defined" >&2;}
   esac \
   || as_fn_error $? "could not create $ac_file" "$LINENO" 5
  ;;
-
+  :H)
+  #
+  # CONFIG_HEADER
+  #
+  if test x"$ac_file" != x-; then
+    {
+      printf "%s\n" "/* $configure_input  */" >&1 \
+      && eval '$AWK -f "$ac_tmp/defines.awk"' "$ac_file_inputs"
+    } >"$ac_tmp/config.h" \
+      || as_fn_error $? "could not create $ac_file" "$LINENO" 5
+    if diff "$ac_file" "$ac_tmp/config.h" >/dev/null 2>&1; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: $ac_file is unchanged" >&5
+printf "%s\n" "$as_me: $ac_file is unchanged" >&6;}
+    else
+      rm -f "$ac_file"
+      mv "$ac_tmp/config.h" "$ac_file" \
+	|| as_fn_error $? "could not create $ac_file" "$LINENO" 5
+    fi
+  else
+    printf "%s\n" "/* $configure_input  */" >&1 \
+      && eval '$AWK -f "$ac_tmp/defines.awk"' "$ac_file_inputs" \
+      || as_fn_error $? "could not create -" "$LINENO" 5
+  fi
+ ;;
 
 
   esac

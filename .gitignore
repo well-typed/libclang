@@ -34,6 +34,7 @@ unversioned
 
 *.dll
 *.log
+*.so
 
 autom4te.cache/
 config.log
