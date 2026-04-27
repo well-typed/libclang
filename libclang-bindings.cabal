@@ -42,6 +42,49 @@ source-repository this
   location: https://github.com/well-typed/libclang
   tag:      bloomfilter-blocked-0.1.0
 
+--------------------------------------------------------------------------------
+-- Configuring libclang-bindings
+--
+-- This package is configured using an autoconf configure script, which
+-- determines how the libclang shared library is linked.
+--
+-- In general, llvm-config is used to determine the include and library
+-- directories.  If you have more than one version LLVM/Clang installed, you may
+-- configure your PATH to ensure that the llvm-config for the version that you
+-- want to use is found.
+--
+-- If llvm-config is not available, you may instead configure the LLVM_PATH
+-- environment variable to determine the include (LLVM_PATH/include) and library
+-- (LLVM_PATH/lib) directories.
+--
+-- The clang library is linked by default.  On Linux, this library is resolved
+-- to a shared library named libclang.so, and the SONAME of that shared library
+-- determines the versioned filename that is actually linked.  The configured
+-- library directory ensures that the correct version is linked.  Haskell
+-- packages that (transitively) depend on libclang-bindings are also linked to
+-- the library.  In some cases, Cabal links to the wrong version.  To work
+-- around this issue, the configure script has a --with-so option.  For example,
+-- a symbolic link named libclang_21_1_8.so to shared library
+-- /usr/lib/llvm21/lib/libclang.so.21.1.8 provides a versioned library name
+-- (libclang_21_1_8) that ensures that the correct version is linked.   Note
+-- that the symbolic link must have a name with a lib prefix and .so suffix.  A
+-- package that (transitively) depends on libclang-bindings can configure this
+-- in a cabal.project.local file as follows:
+--
+--     package libclang-bindings
+--       configure-options: --with-so=/absolute/path/to/libclang_21_1_8.so
+--
+-- Note that this symbolic link must be persistent, the path is cached in the
+-- Cabal store and used whenever a package that (transitively) depends on
+-- libclang-bindings is (re)built.
+--
+-- If you upgrade LLVM/Clang, you must reconfigure and rebuild all packages that
+-- depend on it.  When using the --with-so option, you must also create a new
+-- symbolic link to the new shared library.  Note that configure-options are
+-- included in the Cabal store hash for the package, so changing the --with-so
+-- configuration is sufficient to let Cabal know that a new build is needed.
+--------------------------------------------------------------------------------
+
 common lang
   ghc-options:
     -Wall -Widentities -Wprepositive-qualified-module
