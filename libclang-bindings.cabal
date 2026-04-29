@@ -40,7 +40,7 @@ source-repository head
 source-repository this
   type:     git
   location: https://github.com/well-typed/libclang
-  tag:      bloomfilter-blocked-0.1.0
+  tag:      release-0.1-alpha
 
 --------------------------------------------------------------------------------
 -- Configuring libclang-bindings
