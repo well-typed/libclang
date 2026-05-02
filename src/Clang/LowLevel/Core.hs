@@ -944,6 +944,8 @@ clang_visitChildren root visitor = liftIO $ do
     res <- onHaskellHeap root $ \parent' ->
       (/= 0) <$> wrap_visitChildren parent' visitor'
 
+    freeHaskellFunPtr visitor'
+
     readIORef eRef >>= \case
       Nothing  -> return res
       Just exc -> throwIO exc
