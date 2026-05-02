@@ -27,7 +27,6 @@ module Clang.HighLevel.Fold (
   ) where
 
 import Control.Exception (Exception (..), SomeException)
-import Control.Exception qualified as Base
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.IO.Unlift (MonadUnliftIO (withRunInIO))
@@ -35,6 +34,7 @@ import Data.IORef
 import GHC.Stack
 
 import Clang.Enum.Simple
+import Clang.Internal.Exception
 import Clang.LowLevel.Core hiding (clang_visitChildren)
 import Clang.LowLevel.Core qualified as Core
 
@@ -306,27 +306,6 @@ instance Functor m => Functor (Fold m) where
       }
 
 {-------------------------------------------------------------------------------
-  Internal: exception handling
-
-  We do not use @handle@ from @unlift@, as it excludes async exceptions, and we
-  want it to be up to the exception handler to decide if it wants to deal with
-  async exceptions or not.
--------------------------------------------------------------------------------}
-
-throwIO :: (MonadIO m, Exception e) => e -> m a
-throwIO = liftIO . Base.throwIO
-
-type RunInIO m = forall a. m a -> IO a
-
-handleUnliftUsing ::
-     ( MonadIO n
-     , Exception e
-     )
-  => RunInIO m -> (e -> m a) -> m a -> n a
-handleUnliftUsing runInIO handler action = liftIO $
-    Base.handle (runInIO . handler) (runInIO action)
-
-{-------------------------------------------------------------------------------
   Internal: partial results
 
   NOTE: These functions are ultimately called from a Haskel callback called from
@@ -467,7 +446,7 @@ popUntil runInIO someStack newParent = do
             Push p summarize (stack' :: Stack m b) -> do
               let handler :: SomeException -> m (Maybe b)
                   handler = foldHandler (topFold stack') (parent p)
-              mb <- Base.try $
+              mb <- try $
                 handleUnliftUsing runInIO handler $
                   summarize =<< getPartialResults (partialResults p)
               case mb of
@@ -520,7 +499,7 @@ clang_visitChildren root topLevelFold = withRunInIO $ \runInIO -> do
         if previousException then
           return $ simpleEnum CXChildVisit_Continue
         else do
-          next <- Base.try $
+          next <- try $
             handleUnliftUsing runInIO (fmap Continue . foldHandler current) $
               foldNext current
           case next of
