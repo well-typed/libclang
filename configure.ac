@@ -73,18 +73,129 @@ else
   fi
 fi
 
-AC_MSG_CHECKING([LLVM version])
+dnl If using llvm-config, get the version.  This also checks that we can run
+dnl llvm-config.
+AC_MSG_CHECKING([llvm-config version])
 if test -n "$LLVM_CONFIG" ; then
-  dnl This checks that we can run llvm-config
-  wt_llvm_version="$("$LLVM_CONFIG" --version)"
-  if test $? == 0 ; then
-    AC_MSG_RESULT([$wt_llvm_version])
+  wt_llvm_config_version="$("$LLVM_CONFIG" --version)"
+  if test $? -eq 0 ; then
+    AC_MSG_RESULT([$wt_llvm_config_version])
   else
     AC_MSG_RESULT([error])
     AC_MSG_ERROR([could not run llvm-config])
   fi
 else
   AC_MSG_RESULT([skipped])
+fi
+
+# WT_PARSE_VERSION(VERSION_STRING)
+#
+# $wt_parse_version_status is set to 0 on success or 1 on failure
+# $wt_parse_version_major is set to the major version on success
+# $wt_parse_version_minor is set to the minor version on success
+# $wt_parse_version_patch is set to the patch version on success
+#
+# NOTE This macro definition should not use dnl comments.
+AC_DEFUN([WT_PARSE_VERSION], [
+  wt_parse_version_major=''
+  wt_parse_version_minor=''
+  wt_parse_version_patch=''
+  wt_parse_version_status=0 # SUCCESS
+  wt_parse_version_input="$1"
+  wt_parse_version_state=0 # STATE_START
+  while test -n "$wt_parse_version_input" ; do
+    wt_parse_version_tail="${wt_parse_version_input#?}"
+    wt_parse_version_head="${wt_parse_version_input%${wt_parse_version_tail}}"
+    wt_parse_version_input="$wt_parse_version_tail"
+    case "$wt_parse_version_head" in
+      0|1|2|3|4|5|6|7|8|9) # NOTE [0-9] does not work for some reason
+        case "$wt_parse_version_state" in
+          0) # STATE_START
+            wt_parse_version_major="${wt_parse_version_head}"
+            wt_parse_version_state=1 # STATE_MAJOR
+            ;;
+          1) # STATE_MAJOR
+            wt_parse_version_major="${wt_parse_version_major}${wt_parse_version_head}"
+            ;;
+          2) # STATE_MAJOR_DOT
+            wt_parse_version_minor="${wt_parse_version_head}"
+            wt_parse_version_state=3 # STATE_MINOR
+            ;;
+          3) # STATE_MINOR
+            wt_parse_version_minor="${wt_parse_version_minor}${wt_parse_version_head}"
+            ;;
+          4) # STATE_MINOR_DOT
+            wt_parse_version_patch="${wt_parse_version_head}"
+            wt_parse_version_state=5 # STATE_PATCH
+            ;;
+          5) # STATE_PATCH
+            wt_parse_version_patch="${wt_parse_version_patch}${wt_parse_version_head}"
+            ;;
+        esac
+        ;;
+      .)
+        case "$wt_parse_version_state" in
+          1) # STATE_MAJOR
+            wt_parse_version_state=2 # STATE_MAJOR_DOT
+            ;;
+          3) # STATE_MINOR
+            wt_parse_version_state=4 # STATE_MINOR_DOT
+            ;;
+          5) # STATE_PATCH
+            wt_parse_version_state=7 # STATE_SUCCESS
+            break
+            ;;
+          *)
+            wt_parse_version_state=6 # STATE_SKIP
+            ;;
+        esac
+        ;;
+      ' ')
+        case "$wt_parse_version_state" in
+          5) # STATE_PATCH
+            wt_parse_version_state=7 # STATE_SUCCESS
+            break
+            ;;
+          *)
+            wt_parse_version_state=0 # STATE_START
+            ;;
+        esac
+        ;;
+      *)
+        case "$wt_parse_version_state" in
+          5) # STATE_PATCH
+            wt_parse_version_state=7 # STATE_SUCCESS
+            break
+            ;;
+          *)
+            wt_parse_version_state=6 # STATE_SKIP
+            ;;
+        esac
+        ;;
+    esac
+  done
+  case "$wt_parse_version_state" in
+    5|7) # STATE_PATCH STATE_SUCCESS
+      ;;
+    *)
+      wt_parse_version_status=1 # FAILURE
+      ;;
+  esac
+])
+
+dnl Parse llvm-config version only if using llvm-config
+if test -n "$wt_llvm_config_version" ; then
+  AC_MSG_CHECKING([Parsing llvm-config version])
+  WT_PARSE_VERSION([$wt_llvm_config_version])
+  if test "$wt_parse_version_status" -eq 0 ; then
+    wt_llvm_config_major="$wt_parse_version_major"
+    wt_llvm_config_minor="$wt_parse_version_minor"
+    wt_llvm_config_patch="$wt_parse_version_patch"
+    AC_MSG_RESULT([major=$wt_llvm_config_major minor=$wt_llvm_config_minor patch=$wt_llvm_config_patch])
+  else
+    AC_MSG_RESULT([error])
+    AC_MSG_ERROR([could not parse llvm-config version])
+  fi
 fi
 
 dnl Clang library resolution:
@@ -149,8 +260,9 @@ AC_CHECK_LIB(
   [AC_MSG_ERROR([Cannot link against libclang])]
 )
 
-dnl Get the version of the linked libclang shared library.  This is subsituted
-dnl into a generated Haskell module to provide the "compile-time" version.
+dnl Get the version of the linked libclang shared library.  The version string
+dnl is subsituted into a generated Haskell module to provide the "compile-time"
+dnl version.
 AC_MSG_CHECKING([libclang version])
 AC_LINK_IFELSE(
   [AC_LANG_PROGRAM(
@@ -164,16 +276,38 @@ AC_LINK_IFELSE(
       clang_disposeString(cxstring);
     ]]
   )],
-  [wt_libclang_bindings_version=$(./conftest$EXEEXT)],
+  [wt_libclang_version=$(./conftest$EXEEXT)],
   [AC_MSG_FAILURE([Unable to determine libclang version])]
 )
-AC_MSG_RESULT($wt_libclang_bindings_version)
-dnl TODO Check version for consistency
-dnl https://www.gnu.org/software/autoconf-archive/ax_compare_version.html
+AC_MSG_RESULT($wt_libclang_version)
 AC_SUBST(
-  [LIBCLANG_BINDINGS_VERSION],
-  ["$(echo ${wt_libclang_bindings_version} | sed 's/\"/\\\"/g')"]
+  [LIBCLANG_VERSION_STRING],
+  ["$(echo ${wt_libclang_version} | sed 's/\"/\\\"/g')"]
 )
+
+dnl Parse libclang version
+AC_MSG_CHECKING([Parsing libclang version])
+WT_PARSE_VERSION([$wt_libclang_version])
+if test "$wt_parse_version_status" -eq 0 ; then
+  wt_libclang_major="$wt_parse_version_major"
+  wt_libclang_minor="$wt_parse_version_minor"
+  wt_libclang_patch="$wt_parse_version_patch"
+  AC_MSG_RESULT([major=$wt_libclang_major minor=$wt_libclang_minor patch=$wt_libclang_patch])
+  AC_SUBST([LIBCLANG_VERSION_MAJOR], [$wt_libclang_major])
+  AC_SUBST([LIBCLANG_VERSION_MINOR], [$wt_libclang_minor])
+  AC_SUBST([LIBCLANG_VERSION_PATCH], [$wt_libclang_patch])
+else
+  AC_MSG_RESULT([error])
+  AC_MSG_ERROR([could not parse libclang version])
+fi
+
+dnl Check that libclang version matches llvm-config version when using
+dnl llvm-config
+if test -n "$wt_llvm_config_version" ; then
+  if test "$wt_libclang_major" -ne "$wt_llvm_config_major" -o "$wt_libclang_minor" -ne "$wt_llvm_config_minor" -o "$wt_libclang_patch" -ne "$wt_llvm_config_patch" ; then
+    AC_MSG_FAILURE([libclang and llvm-config versions do not match])
+  fi
+fi
 
 dnl clang_isBeforeInTranslationUnit was introduced in Clang version 20.1, but
 dnl CINDEX_VERSION_MINOR was not bumped, so we need to check for it.
@@ -181,5 +315,9 @@ AC_CHECK_FUNCS([clang_isBeforeInTranslationUnit])
 
 dnl Output
 AC_CONFIG_HEADERS([autogen/clang_config.h])
-AC_CONFIG_FILES([libclang-bindings.buildinfo autogen/Version_libclang_bindings.hs])
+AC_CONFIG_FILES([
+  libclang-bindings.buildinfo
+  autogen/libclang_version.h
+  autogen/Version_libclang_bindings.hs
+])
 AC_OUTPUT

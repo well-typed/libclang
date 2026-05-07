@@ -5,4 +5,4 @@ module Version_libclang_bindings where
 import Data.Text (Text)
 
 clangVersionCompileTime :: Text
-clangVersionCompileTime = "@LIBCLANG_BINDINGS_VERSION@"
+clangVersionCompileTime = "@LIBCLANG_VERSION_STRING@"
