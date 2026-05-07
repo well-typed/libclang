@@ -52,6 +52,7 @@ isClangVersionCompatible l r =
 
 clangVersion :: ClangVersion
 clangVersion = unsafePerformIO $ parseClangVersion <$> clang_getClangVersion
+{-# NOINLINE clangVersion #-}
 
 {-------------------------------------------------------------------------------
   Version requirements
@@ -81,4 +82,4 @@ requireClangVersion v =
 -------------------------------------------------------------------------------}
 
 clang_getClangVersion :: MonadIO m => m Text
-clang_getClangVersion = liftIO $ preallocate_ $ wrap_getClangVersion
+clang_getClangVersion = liftIO $ preallocate_ wrap_getClangVersion
