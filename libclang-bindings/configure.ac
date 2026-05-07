@@ -261,7 +261,7 @@ AC_CHECK_LIB(
 )
 
 dnl Get the version of the linked libclang shared library.  The version string
-dnl is subsituted into a generated Haskell module to provide the "compile-time"
+dnl is substituted into a generated Haskell module to provide the "compile-time"
 dnl version.
 AC_MSG_CHECKING([libclang version])
 AC_LINK_IFELSE(

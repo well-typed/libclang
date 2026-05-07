@@ -1174,7 +1174,7 @@ clang_Cursor_isBitField cursor = liftIO $
     onHaskellHeap cursor $ \cursor' ->
       cToBool <$> wrap_Cursor_isBitField cursor'
 
--- | Return the bit width of a bit-field declaration as an iteger.
+-- | Return the bit width of a bit-field declaration as an integer.
 --
 -- If the cursor does not reference a bit-field, or if the bit-field's width
 -- expression cannot be evaluated, -1 is returned.

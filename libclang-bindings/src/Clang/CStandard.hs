@@ -37,7 +37,7 @@ import Clang.Paths
 data ClangCStandard =
     -- | Official C standard, optionally with GNU extensions
     ClangCStandard CStandard Gnu
-  | -- | Microsft C
+  | -- | Microsoft C
     ClangCMicrosoft MicrosoftCVersion
   deriving stock (Eq, Ord, Show)
 
@@ -57,7 +57,7 @@ data Gnu =
   | EnableGnu
   deriving stock (Bounded, Enum, Eq, Ord, Show)
 
--- | Microsft C version
+-- | Microsoft C version
 type MicrosoftCVersion = Integer
 
 {-------------------------------------------------------------------------------
