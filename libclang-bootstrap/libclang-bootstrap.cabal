@@ -18,6 +18,7 @@ tested-with:
    || ==9.14.1
 
 extra-source-files: imports.h
+extra-doc-files:    README.md
 
 executable libclang-bootstrap
   main-is:          libclang-bootstrap.hs
