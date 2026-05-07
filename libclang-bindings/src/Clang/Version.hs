@@ -1,6 +1,8 @@
 module Clang.Version (
     -- * Definition
     ClangVersion(..)
+    -- * Version compatibility
+  , isClangVersionCompatible
     -- * Current version
   , clangVersionCompileTime
   , clangVersion
@@ -12,7 +14,9 @@ module Clang.Version (
   , parseClangVersion
   ) where
 
+import Control.Applicative qualified as Applicative
 import Control.Monad.IO.Class
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import GHC.Stack
 import System.IO.Unsafe (unsafePerformIO)
@@ -24,6 +28,23 @@ import Clang.LowLevel.FFI
 import Clang.Version.Internal (ClangVersion (..), parseClangVersion)
 
 import Version_libclang_bindings (clangVersionCompileTime)
+
+{-------------------------------------------------------------------------------
+  Version compatibility
+-------------------------------------------------------------------------------}
+
+-- | Check for compatibility of two Clang versions
+--
+-- Two Clang versions are compatible if they have the same major and minor
+-- versions.
+isClangVersionCompatible :: ClangVersion -> ClangVersion -> Bool
+isClangVersionCompatible l r =
+    fromMaybe False $ Applicative.liftA2 (==) (proj l) (proj r)
+  where
+    proj :: ClangVersion -> Maybe (Int, Int)
+    proj = \case
+      ClangVersion (major, minor, _patch) -> Just (major, minor)
+      ClangVersionUnknown{}               -> Nothing
 
 {-------------------------------------------------------------------------------
   Current version
