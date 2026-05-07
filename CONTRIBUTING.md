@@ -26,9 +26,9 @@ The following should be installed:
 The project is built using `autoreconf`, `ghc` and `cabal`.
 
 ```
-autoreconf -i
+autoreconf -i libclang-bindings
 cabal update
-cabal run clang-bootstrap
+cabal run libclang-bootstrap
 cabal build all
 ```
 
@@ -36,9 +36,9 @@ cabal build all
 the Haskell library. The configuration script is run automatically when `cabal
 build` is invoked.
 
-`clang-bootstrap` should be invoked manuall to generate C wrapper functions and
-Haskel foreign import declarations for the `libclang` C library. This code is
-automatically built when `cabal build` is invoked.
+`libclang-bootstrap` should be invoked manually to generate C wrapper functions
+and Haskell foreign import declarations for the `libclang` C library. This code
+is automatically built when `cabal build` is invoked.
 
 ## Testing
 

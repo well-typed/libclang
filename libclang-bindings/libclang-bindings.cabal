@@ -21,18 +21,13 @@ extra-source-files:
   autogen/clang_config.h.in
   autogen/libclang_version.h.in
   autogen/Version_libclang_bindings.hs.in
-  bootstrap/clang-bootstrap.cabal
-  bootstrap/clang-bootstrap.hs
-  bootstrap/imports.h
   cbits/*.c
   cbits/*.h
-  clang.buildinfo.in
   configure
   configure.ac
+  libclang-bindings.buildinfo.in
 
-extra-doc-files:
-  CHANGELOG.md
-  README.md
+extra-doc-files:    CHANGELOG.md
 
 source-repository head
   type:     git
