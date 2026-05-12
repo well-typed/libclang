@@ -14,31 +14,29 @@ can be used independently.
 > it out!  If something breaks, please check the [issues][] to see if the
 > problem is already known, and open an issue if not.
 
+[Haskell]: https://www.haskell.org/
+[issues]: https://github.com/well-typed/libclang-bindings/issues
+[LLVM/Clang]: https://github.com/llvm/llvm-project
+[`hs-bindgen`]: https://github.com/well-typed/hs-bindgen
+
 ## Documentation
 
-* [`libclang-bindings` manual][]
+* [`libclang-bindings` manual](manual/README.md)
 
 ## Packages in this repository
 
-* [`libclang-bootstrap`][] is used to generate C wrapper functions and Haskell
-  foreign import declarations for a subset of the `libclang` C API.
-* [`libclang-bindings`][] implements the actual bindings.
+* [`libclang-bootstrap`](libclang-bootstrap), a program used to generate C
+  wrapper functions and Haskell foreign import declarations for a subset of the
+  `libclang` C API
+* [`libclang-bindings`](libclang-bindings), a library that provides bindings for
+  the LLVM/Clang `libclang` C API
 
 ## Contribution
 
 Our thanks go to those who have contributed to this project with development,
-bug reports, feature requests, blog posts, etc.  We list [contributors][] in
-the [`hs-bindgen`][] README.
+bug reports, feature requests, blog posts, etc.  We list
+[contributors](https://github.com/well-typed/hs-bindgen#contributors)
+in the `hs-bindgen` README.
 
-Please see [`CONTRIBUTING.md`][] for information about contributing to this
-project.
-
-[`CONTRIBUTING.md`]: <CONTRIBUTING.md>
-[contributors]: <https://github.com/well-typed/hs-bindgen#contributors>
-[Haskell]: <https://www.haskell.org/>
-[issues]: <https://github.com/well-typed/libclang-bindings/issues>
-[`libclang-bindings`]: <libclang-bindings>
-[`libclang-bindings` manual]: <manual/README.md>
-[`libclang-bootstrap`]: <libclang-bootstrap>
-[LLVM/Clang]: <https://github.com/llvm/llvm-project>
-[`hs-bindgen`]: <https://github.com/well-typed/hs-bindgen>
+Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for information about
+contributing to this project.
