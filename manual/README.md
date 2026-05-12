@@ -419,14 +419,18 @@ You can test `libclang-bindings` as follows.
 $ cabal test all
 ```
 
-[Autoconf]: <https://www.gnu.org/software/autoconf/>
-[Cabal]: <https://www.haskell.org/cabal/>
-[GHC]: <https://www.haskell.org/ghc/>
-[Haskell]: <https://www.haskell.org/>
-[Homebrew]: <https://brew.sh/>
-[`hs-bindgen`]: <https://github.com/well-typed/hs-bindgen>
-[`libclang-bindings.nix`]: <https://github.com/well-typed/hs-bindgen/blob/main/nix/libclang-bindings.nix>
-[LLVM/Clang]: <https://github.com/llvm/llvm-project>
-[LLVM/Clang release]: <https://github.com/llvm/llvm-project/releases>
-[MSYS2]: <https://www.msys2.org/>
-[open an issue]: <https://github.com/well-typed/libclang-bindings/issues/new>
+
+
+<!-- sources and references -->
+
+[Autoconf]: https://www.gnu.org/software/autoconf/
+[Cabal]: https://www.haskell.org/cabal/
+[GHC]: https://www.haskell.org/ghc/
+[Haskell]: https://www.haskell.org/
+[Homebrew]: https://brew.sh/
+[`hs-bindgen`]: https://github.com/well-typed/hs-bindgen
+[`libclang-bindings.nix`]: https://github.com/well-typed/hs-bindgen/blob/main/nix/libclang-bindings.nix
+[LLVM/Clang]: https://github.com/llvm/llvm-project
+[LLVM/Clang release]: https://github.com/llvm/llvm-project/releases
+[MSYS2]: https://www.msys2.org/
+[open an issue]: https://github.com/well-typed/libclang-bindings/issues/new
