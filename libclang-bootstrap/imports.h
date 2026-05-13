@@ -294,7 +294,7 @@ void             clang_disposeTokens (CXTranslationUnit TU, CXToken * Tokens, un
 CXString clang_getCursorKindSpelling (enum CXCursorKind Kind);
 // OMITTED: void     clang_getDefinitionSpellingAndExtent (CXCursor, const char * * startBuf, const char * * endBuf, unsigned * startLine, unsigned * startColumn, unsigned * endLine, unsigned * endColumn);
 // OMITTED: void     clang_enableStackTraces (void);
-// OMITTED: void     clang_executeOnThread (void(*fn)(void *), void * user_data, unsigned stack_size); // NOTE: function pointer syntax not supported by the clang-bootstrap parser
+// OMITTED: void     clang_executeOnThread (void(*fn)(void *), void * user_data, unsigned stack_size); // NOTE: function pointer syntax not supported by the libclang-bootstrap parser
 
 // *** Miscellaneous utility functions ***
 // <https://clang.llvm.org/doxygen/group__CINDEX__MISC.html>

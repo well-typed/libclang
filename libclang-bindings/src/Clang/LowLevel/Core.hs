@@ -260,7 +260,7 @@ import Clang.LowLevel.Core.Pointers
 import Clang.LowLevel.Core.Structs
 import Clang.LowLevel.FFI
 import Clang.Paths
-import Clang.Version
+import Clang.Version (requireClangVersion)
 
 {-------------------------------------------------------------------------------
   Top-level
@@ -1174,7 +1174,7 @@ clang_Cursor_isBitField cursor = liftIO $
     onHaskellHeap cursor $ \cursor' ->
       cToBool <$> wrap_Cursor_isBitField cursor'
 
--- | Return the bit width of a bit-field declaration as an iteger.
+-- | Return the bit width of a bit-field declaration as an integer.
 --
 -- If the cursor does not reference a bit-field, or if the bit-field's width
 -- expression cannot be evaluated, -1 is returned.
@@ -1417,7 +1417,7 @@ clang_getTypedefName arg = liftIO $
 clang_getUnqualifiedType :: MonadIO m => CXType -> m CXType
 clang_getUnqualifiedType typ = liftIO $ do
     -- clang_getUnqualifiedType was added in Clang 16
-    requireClangVersion (16,0,0)
+    requireClangVersion (16, 0, 0)
     -- clang_getUnqualifiedType segfaults when CT is invalid
     case fromSimpleEnum (cxtKind typ) of
       e@Left{}                 -> callFailedShow e

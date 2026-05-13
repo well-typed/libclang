@@ -26,7 +26,7 @@ newtype ClangArgs = ClangArgs { unClangArgs :: [String] }
 instance Default ClangArgs where
   def = ClangArgs []
 
--- | Invalid Clang arugments exception
+-- | Invalid Clang arguments exception
 newtype InvalidClangArgs = InvalidClangArgs String
   deriving stock (Show)
   deriving newtype (IsString)

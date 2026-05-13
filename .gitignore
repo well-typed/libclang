@@ -34,6 +34,7 @@ unversioned
 
 *.dll
 *.log
+*.so
 
 autom4te.cache/
 config.log
@@ -42,6 +43,7 @@ config.status
 # When running `autoconf` and `./configure` in the shell, these files are
 # created. They are also directly created in the Cabal build pipeline
 # (`dist-newstyle`), and should not be committed.
-autogen/clang_config.h
-autogen/Version_libclang_bindings.hs
-clang.buildinfo
+libclang-bindings/autogen/clang_config.h
+libclang-bindings/autogen/libclang_version.h
+libclang-bindings/autogen/Version_libclang_bindings.hs
+libclang-bindings/libclang-bindings.buildinfo

@@ -1,54 +1,5 @@
 # Contributing
 
-## Installation requirements
-
-The following should be installed:
-
-* The `libclang` C library from the [The LLVM
-  project](https://github.com/llvm/llvm-project)
-
-* `autoreconf` and its dependencies
-  * Ubuntu:
-    ```
-    apt-get install build-essential
-    ```
-  * MacOS:
-    ```
-    brew install coreutils autoconf automake
-    ```
-  * Windows (MSYS2):
-    ```
-    pacman --noconfirm -Sy base-devel automake-wrapper autoconf-wrapper
-    ```
-
-## Building
-
-The project is built using `autoreconf`, `ghc` and `cabal`.
-
-```
-autoreconf -i
-cabal update
-cabal run clang-bootstrap
-cabal build all
-```
-
-`autoreconf` should be invoked manually to generate a configuration script for
-the Haskell library. The configuration script is run automatically when `cabal
-build` is invoked.
-
-`clang-bootstrap` should be invoked manuall to generate C wrapper functions and
-Haskel foreign import declarations for the `libclang` C library. This code is
-automatically built when `cabal build` is invoked.
-
-## Testing
-
-Tests are run using `cabal`.
-
-```
-cabal build all
-cabal test all
-```
-
 ## Code style
 
 There is no strict code style, but try to keep the code style consistent

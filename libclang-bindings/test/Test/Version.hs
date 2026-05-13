@@ -58,14 +58,14 @@ testExamples =
 -------------------------------------------------------------------------------}
 
 testCurrent :: IO String
-testCurrent = do
-    raw <- clang_getClangVersion
-    case clangVersion of
+testCurrent =
+    case runtimeClangVersion of
       ClangVersionUnknown version ->
         assertFailure $ "Unknown version: " ++ show version
       ClangVersion version ->
         if plausible version
-          then return $ show raw ++ " parsed as " ++ show version
+          then return $
+            show runtimeClangVersionString ++ " parsed as " ++ show version
           else assertFailure $ "Unexpected clang version: " ++ show version
 
 -- | Check whether the parsed @clang@ version is plausible

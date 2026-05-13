@@ -196,7 +196,7 @@ deriving stock instance {-# OVERLAPPABLE #-} Show a => Show (Range a)
 {-------------------------------------------------------------------------------
   Pretty-printing
 
-  These instances mimick the behaviour of @SourceLocation::print@ and
+  These instances mimic the behaviour of @SourceLocation::print@ and
   @SourceRange::print@ in @clang@.
 -------------------------------------------------------------------------------}
 

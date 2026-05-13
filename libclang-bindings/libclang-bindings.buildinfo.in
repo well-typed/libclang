@@ -1,0 +1,3 @@
+extra-libraries: @CLANG_LIB@
+extra-lib-dirs:  @CLANG_LIB_DIRS@
+include-dirs:    @CLANG_INCLUDE_DIR@ autogen
