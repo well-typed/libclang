@@ -1,7 +1,17 @@
 #ifndef CLANG_WRAPPERS_H
 #define CLANG_WRAPPERS_H
 
+#include "libclang_version.h"
+
+#if LIBCLANG_VERSION_MAJOR == 21
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <clang-c/Index.h>
+#if LIBCLANG_VERSION_MAJOR == 21
+#pragma GCC diagnostic pop
+#endif
+
 #include <stdio.h>
 #include "clang_wrappers_ffi.h"
 

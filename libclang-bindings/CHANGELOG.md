@@ -25,10 +25,16 @@
 
 ### Bug fixes
 
+* Silence `-Wdeprecated-declarations` warnings emitted by `<clang-c/Index.h>`
+  on Clang 21 at the system-header include sites only, so that deprecation
+  warnings for libclang APIs we actually call remain visible. See
+  [issue #58][issue-58].
+
 [pr-37]: https://github.com/well-typed/libclang/pull/37
 [pr-42]: https://github.com/well-typed/libclang/pull/42
 [pr-47]: https://github.com/well-typed/libclang/pull/47
 [pr-53]: https://github.com/well-typed/libclang/pull/53
+[issue-58]: https://github.com/well-typed/libclang/issues/58
 
 ## 0.1.0-alpha -- 2026-02-06
 

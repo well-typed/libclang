@@ -1,6 +1,8 @@
 #ifndef DOXYGEN_WRAPPERS_H
 #define DOXYGEN_WRAPPERS_H
 
+#include "libclang_version.h"
+
 /**
  * Wrappers for the Doxygen API
  *
@@ -17,7 +19,14 @@
  * convention for such parameters, while `result` is not capitalized.
  */
 
+#if LIBCLANG_VERSION_MAJOR == 21
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <clang-c/Documentation.h>
+#if LIBCLANG_VERSION_MAJOR == 21
+#pragma GCC diagnostic pop
+#endif
 
 /**
  * Top-level
